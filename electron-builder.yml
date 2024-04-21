@@ -1,0 +1,51 @@
+appId: 'cgn.mcl'
+productName: 'CraftGame.net Minecraft Launcher'
+artifactName: '${productName} ${version}.${ext}'
+
+copyright: 'Copyright © 2024 CraftGame.net'
+
+asar: true
+compression: 'maximum'
+
+files:
+    - '!{dist,.gitignore,.vscode,docs,dev-app-update.yml,.nvmrc,.eslintrc.json}'
+
+extraResources:
+    - 'libraries'
+
+# Windows Configuration
+win:
+    target:
+        - target: 'nsis'
+          arch: 'x64'
+
+# Windows Installer Configuration
+nsis:
+    oneClick: false
+    perMachine: false
+    allowElevation: true
+    allowToChangeInstallationDirectory: true
+
+# macOS Configuration
+mac:
+    target:
+        - target: 'dmg'
+          arch:
+              - 'x64'
+              - 'arm64'
+    artifactName: '${productName}-setup-${version}-${arch}.${ext}'
+    category: 'public.app-category.games'
+
+# Linux Configuration
+linux:
+    target: 'deb'
+    maintainer: 'CraftGame.net'
+    vendor: 'CraftGame.net'
+    synopsis: 'CraftGame.net Minecraft Launcher'
+    description: 'Launcher to play on CraftGame.net'
+    category: 'Game'
+
+
+directories:
+    buildResources: 'build'
+    output: 'dist'
