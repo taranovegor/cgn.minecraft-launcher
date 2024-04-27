@@ -833,6 +833,7 @@ body, button {
     column-gap: 5px;
     color: rgba(255, 255, 255, 1);
     text-decoration: none;
+    width: 100%;
 }
 .loginOptionButton:hover,
 .loginOptionButton:focus {

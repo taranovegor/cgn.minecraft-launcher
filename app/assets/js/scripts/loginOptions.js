@@ -24,6 +24,8 @@ loginOptionWebsite.onclick = (e) => {
             loginOptionsViewOnLoginSuccess,
             loginOptionsViewOnLoginCancel
         )
+
+        shell.openExternal('https://craftgame.net/launcher/auth')
     })
 }
 
