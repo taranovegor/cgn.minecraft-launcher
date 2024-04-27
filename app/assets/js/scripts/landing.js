@@ -46,7 +46,7 @@ const loggerLanding = LoggerUtil.getLogger('Landing')
 
 /**
  * Show/hide the loading area.
- * 
+ *
  * @param {boolean} loading True if the loading area should be shown, otherwise false.
  */
 function toggleLaunchArea(loading){
@@ -61,7 +61,7 @@ function toggleLaunchArea(loading){
 
 /**
  * Set the details text of the loading area.
- * 
+ *
  * @param {string} details The new text for the loading details.
  */
 function setLaunchDetails(details){
@@ -70,7 +70,7 @@ function setLaunchDetails(details){
 
 /**
  * Set the value of the loading progress bar and display that value.
- * 
+ *
  * @param {number} percent Percentage (0-100)
  */
 function setLaunchPercentage(percent){
@@ -81,7 +81,7 @@ function setLaunchPercentage(percent){
 
 /**
  * Set the value of the OS progress bar and display that on the UI.
- * 
+ *
  * @param {number} percent Percentage (0-100)
  */
 function setDownloadPercentage(percent){
@@ -91,7 +91,7 @@ function setDownloadPercentage(percent){
 
 /**
  * Enable or disable the launch button.
- * 
+ *
  * @param {boolean} val True to enable, false to disable.
  */
 function setLaunchEnabled(val){
@@ -154,7 +154,7 @@ function updateSelectedAccount(authUser){
     }
     user_text.innerHTML = username
 }
-updateSelectedAccount(ConfigManager.getSelectedAccount())
+updateSelectedAccount(ConfigManager.getAccount())
 
 // Bind selected server
 function updateSelectedServer(serv){
@@ -176,64 +176,6 @@ server_selection_button.onclick = async e => {
     await toggleServerSelection(true)
 }
 
-// Update Mojang Status Color
-const refreshMojangStatuses = async function(){
-    loggerLanding.info('Refreshing Mojang Statuses..')
-
-    let status = 'grey'
-    let tooltipEssentialHTML = ''
-    let tooltipNonEssentialHTML = ''
-
-    const response = await MojangRestAPI.status()
-    let statuses
-    if(response.responseStatus === RestResponseStatus.SUCCESS) {
-        statuses = response.data
-    } else {
-        loggerLanding.warn('Unable to refresh Mojang service status.')
-        statuses = MojangRestAPI.getDefaultStatuses()
-    }
-    
-    greenCount = 0
-    greyCount = 0
-
-    for(let i=0; i<statuses.length; i++){
-        const service = statuses[i]
-
-        const tooltipHTML = `<div class="mojangStatusContainer">
-            <span class="mojangStatusIcon" style="color: ${MojangRestAPI.statusToHex(service.status)};">&#8226;</span>
-            <span class="mojangStatusName">${service.name}</span>
-        </div>`
-        if(service.essential){
-            tooltipEssentialHTML += tooltipHTML
-        } else {
-            tooltipNonEssentialHTML += tooltipHTML
-        }
-
-        if(service.status === 'yellow' && status !== 'red'){
-            status = 'yellow'
-        } else if(service.status === 'red'){
-            status = 'red'
-        } else {
-            if(service.status === 'grey'){
-                ++greyCount
-            }
-            ++greenCount
-        }
-
-    }
-
-    if(greenCount === statuses.length){
-        if(greyCount === statuses.length){
-            status = 'grey'
-        } else {
-            status = 'green'
-        }
-    }
-    
-    document.getElementById('mojangStatusEssentialContainer').innerHTML = tooltipEssentialHTML
-    document.getElementById('mojangStatusNonEssentialContainer').innerHTML = tooltipNonEssentialHTML
-    document.getElementById('mojang_status_icon').style.color = MojangRestAPI.statusToHex(status)
-}
 
 const refreshServerStatus = async (fade = false) => {
     loggerLanding.info('Refreshing Server Status')
@@ -263,20 +205,17 @@ const refreshServerStatus = async (fade = false) => {
         document.getElementById('landingPlayerLabel').innerHTML = pLabel
         document.getElementById('player_count').innerHTML = pVal
     }
-    
+
 }
 
-refreshMojangStatuses()
 // Server Status is refreshed in uibinder.js on distributionIndexDone.
 
-// Refresh statuses every hour. The status page itself refreshes every day so...
-let mojangStatusListener = setInterval(() => refreshMojangStatuses(true), 60*60*1000)
 // Set refresh rate to once every 5 minutes.
 let serverStatusListener = setInterval(() => refreshServerStatus(true), 300000)
 
 /**
  * Shows an error overlay, toggles off the launch area.
- * 
+ *
  * @param {string} title The overlay title.
  * @param {string} desc The overlay description.
  */
@@ -295,8 +234,8 @@ function showLaunchFailure(title, desc){
 
 /**
  * Asynchronously scan the system for valid Java installations.
- * 
- * @param {boolean} launchAfter Whether we should begin to launch after scanning. 
+ *
+ * @param {boolean} launchAfter Whether we should begin to launch after scanning.
  */
 async function asyncSystemScan(effectiveJavaOptions, launchAfter = true){
 
@@ -321,7 +260,7 @@ async function asyncSystemScan(effectiveJavaOptions, launchAfter = true){
         setOverlayHandler(() => {
             setLaunchDetails(Lang.queryJS('landing.systemScan.javaDownloadPrepare'))
             toggleOverlay(false)
-            
+
             try {
                 downloadJava(effectiveJavaOptions, launchAfter)
             } catch(err) {
@@ -468,7 +407,7 @@ async function dlAsync(login = true) {
     const serv = distro.getServerById(ConfigManager.getSelectedServer())
 
     if(login) {
-        if(ConfigManager.getSelectedAccount() == null){
+        if(ConfigManager.getAccount() == null){
             loggerLanding.error('You must be logged into an account.')
             return
         }
@@ -512,7 +451,7 @@ async function dlAsync(login = true) {
         showLaunchFailure(Lang.queryJS('landing.dlAsync.errorDuringFileVerificationTitle'), err.displayable || Lang.queryJS('landing.dlAsync.seeConsoleForDetails'))
         return
     }
-    
+
 
     if(invalidFileCount > 0) {
         loggerLaunchSuite.info('Downloading files.')
@@ -552,7 +491,7 @@ async function dlAsync(login = true) {
     const versionData = await mojangIndexProcessor.getVersionJson()
 
     if(login) {
-        const authUser = ConfigManager.getSelectedAccount()
+        const authUser = ConfigManager.getAccount()
         loggerLaunchSuite.info(`Sending selected account (${authUser.displayName}) to ProcessBuilder.`)
         let pb = new ProcessBuilder(serv, versionData, modLoaderData, authUser, remote.app.getVersion())
         setLaunchDetails(Lang.queryJS('landing.dlAsync.launchingGame'))
@@ -656,8 +595,8 @@ let newsGlideCount = 0
 
 /**
  * Show the news UI via a slide animation.
- * 
- * @param {boolean} up True to slide up, otherwise false. 
+ *
+ * @param {boolean} up True to slide up, otherwise false.
  */
 function slide_(up){
     const lCUpper = document.querySelector('#landingContainer > #upper')
@@ -704,24 +643,24 @@ function slide_(up){
 }
 
 // Bind news button.
-document.getElementById('newsButton').onclick = () => {
-    // Toggle tabbing.
-    if(newsActive){
-        $('#landingContainer *').removeAttr('tabindex')
-        $('#newsContainer *').attr('tabindex', '-1')
-    } else {
-        $('#landingContainer *').attr('tabindex', '-1')
-        $('#newsContainer, #newsContainer *, #lower, #lower #center *').removeAttr('tabindex')
-        if(newsAlertShown){
-            $('#newsButtonAlert').fadeOut(2000)
-            newsAlertShown = false
-            ConfigManager.setNewsCacheDismissed(true)
-            ConfigManager.save()
-        }
-    }
-    slide_(!newsActive)
-    newsActive = !newsActive
-}
+// document.getElementById('newsButton').onclick = () => {
+//     // Toggle tabbing.
+//     if(newsActive){
+//         $('#landingContainer *').removeAttr('tabindex')
+//         $('#newsContainer *').attr('tabindex', '-1')
+//     } else {
+//         $('#landingContainer *').attr('tabindex', '-1')
+//         $('#newsContainer, #newsContainer *, #lower, #lower #center *').removeAttr('tabindex')
+//         if(newsAlertShown){
+//             $('#newsButtonAlert').fadeOut(2000)
+//             newsAlertShown = false
+//             ConfigManager.setNewsCacheDismissed(true)
+//             ConfigManager.save()
+//         }
+//     }
+//     slide_(!newsActive)
+//     newsActive = !newsActive
+// }
 
 // Array to store article meta.
 let newsArr = null
@@ -731,62 +670,64 @@ let newsLoadingListener = null
 
 /**
  * Set the news loading animation.
- * 
+ *
  * @param {boolean} val True to set loading animation, otherwise false.
  */
 function setNewsLoading(val){
-    if(val){
-        const nLStr = Lang.queryJS('landing.news.checking')
-        let dotStr = '..'
-        nELoadSpan.innerHTML = nLStr + dotStr
-        newsLoadingListener = setInterval(() => {
-            if(dotStr.length >= 3){
-                dotStr = ''
-            } else {
-                dotStr += '.'
-            }
-            nELoadSpan.innerHTML = nLStr + dotStr
-        }, 750)
-    } else {
-        if(newsLoadingListener != null){
-            clearInterval(newsLoadingListener)
-            newsLoadingListener = null
-        }
-    }
+    newsArr = []
+
+    // if(val){
+    //     const nLStr = Lang.queryJS('landing.news.checking')
+    //     let dotStr = '..'
+    //     nELoadSpan.innerHTML = nLStr + dotStr
+    //     newsLoadingListener = setInterval(() => {
+    //         if(dotStr.length >= 3){
+    //             dotStr = ''
+    //         } else {
+    //             dotStr += '.'
+    //         }
+    //         nELoadSpan.innerHTML = nLStr + dotStr
+    //     }, 750)
+    // } else {
+    //     if(newsLoadingListener != null){
+    //         clearInterval(newsLoadingListener)
+    //         newsLoadingListener = null
+    //     }
+    // }
 }
 
 // Bind retry button.
-newsErrorRetry.onclick = () => {
-    $('#newsErrorFailed').fadeOut(250, () => {
-        initNews()
-        $('#newsErrorLoading').fadeIn(250)
-    })
-}
+// newsErrorRetry.onclick = () => {
+//     $('#newsErrorFailed').fadeOut(250, () => {
+//         initNews()
+//         $('#newsErrorLoading').fadeIn(250)
+//     })
+// }
 
-newsArticleContentScrollable.onscroll = (e) => {
-    if(e.target.scrollTop > Number.parseFloat($('.newsArticleSpacerTop').css('height'))){
-        newsContent.setAttribute('scrolled', '')
-    } else {
-        newsContent.removeAttribute('scrolled')
-    }
-}
+// newsArticleContentScrollable.onscroll = (e) => {
+//     if(e.target.scrollTop > Number.parseFloat($('.newsArticleSpacerTop').css('height'))){
+//         newsContent.setAttribute('scrolled', '')
+//     } else {
+//         newsContent.removeAttribute('scrolled')
+//     }
+// }
 
 /**
  * Reload the news without restarting.
- * 
+ *
  * @returns {Promise.<void>} A promise which resolves when the news
  * content has finished loading and transitioning.
  */
-function reloadNews(){
-    return new Promise((resolve, reject) => {
-        $('#newsContent').fadeOut(250, () => {
-            $('#newsErrorLoading').fadeIn(250)
-            initNews().then(() => {
-                resolve()
-            })
-        })
-    })
-}
+// function reloadNews(){
+//     return new Promise((resolve, reject) => {
+//         $('#newsContent').fadeOut(250, () => {
+//             $('#newsErrorLoading').fadeIn(250)
+//             initNews().then(() => {
+//                 resolve()
+//             })
+//         })
+//     })
+// }
 
 let newsAlertShown = false
 
@@ -794,8 +735,8 @@ let newsAlertShown = false
  * Show the news alert indicating there is new news.
  */
 function showNewsAlert(){
-    newsAlertShown = true
-    $(newsButtonAlert).fadeIn(250)
+    // newsAlertShown = true
+    // $(newsButtonAlert).fadeIn(250)
 }
 
 async function digestMessage(str) {
@@ -811,95 +752,95 @@ async function digestMessage(str) {
 /**
  * Initialize News UI. This will load the news and prepare
  * the UI accordingly.
- * 
+ *
  * @returns {Promise.<void>} A promise which resolves when the news
  * content has finished loading and transitioning.
  */
 async function initNews(){
 
-    setNewsLoading(true)
-
-    const news = await loadNews()
-
-    newsArr = news?.articles || null
-
-    if(newsArr == null){
-        // News Loading Failed
-        setNewsLoading(false)
-
-        await $('#newsErrorLoading').fadeOut(250).promise()
-        await $('#newsErrorFailed').fadeIn(250).promise()
-
-    } else if(newsArr.length === 0) {
-        // No News Articles
-        setNewsLoading(false)
-
-        ConfigManager.setNewsCache({
-            date: null,
-            content: null,
-            dismissed: false
-        })
-        ConfigManager.save()
-
-        await $('#newsErrorLoading').fadeOut(250).promise()
-        await $('#newsErrorNone').fadeIn(250).promise()
-    } else {
-        // Success
-        setNewsLoading(false)
-
-        const lN = newsArr[0]
-        const cached = ConfigManager.getNewsCache()
-        let newHash = await digestMessage(lN.content)
-        let newDate = new Date(lN.date)
-        let isNew = false
-
-        if(cached.date != null && cached.content != null){
-
-            if(new Date(cached.date) >= newDate){
-
-                // Compare Content
-                if(cached.content !== newHash){
-                    isNew = true
-                    showNewsAlert()
-                } else {
-                    if(!cached.dismissed){
-                        isNew = true
-                        showNewsAlert()
-                    }
-                }
-
-            } else {
-                isNew = true
-                showNewsAlert()
-            }
-
-        } else {
-            isNew = true
-            showNewsAlert()
-        }
-
-        if(isNew){
-            ConfigManager.setNewsCache({
-                date: newDate.getTime(),
-                content: newHash,
-                dismissed: false
-            })
-            ConfigManager.save()
-        }
-
-        const switchHandler = (forward) => {
-            let cArt = parseInt(newsContent.getAttribute('article'))
-            let nxtArt = forward ? (cArt >= newsArr.length-1 ? 0 : cArt + 1) : (cArt <= 0 ? newsArr.length-1 : cArt - 1)
-    
-            displayArticle(newsArr[nxtArt], nxtArt+1)
-        }
-
-        document.getElementById('newsNavigateRight').onclick = () => { switchHandler(true) }
-        document.getElementById('newsNavigateLeft').onclick = () => { switchHandler(false) }
-        await $('#newsErrorContainer').fadeOut(250).promise()
-        displayArticle(newsArr[0], 1)
-        await $('#newsContent').fadeIn(250).promise()
-    }
+    // setNewsLoading(true)
+    //
+    // const news = await loadNews()
+    //
+    // newsArr = news?.articles || null
+    //
+    // if(newsArr == null){
+    //     // News Loading Failed
+    //     setNewsLoading(false)
+    //
+    //     await $('#newsErrorLoading').fadeOut(250).promise()
+    //     await $('#newsErrorFailed').fadeIn(250).promise()
+    //
+    // } else if(newsArr.length === 0) {
+    //     // No News Articles
+    //     setNewsLoading(false)
+    //
+    //     ConfigManager.setNewsCache({
+    //         date: null,
+    //         content: null,
+    //         dismissed: false
+    //     })
+    //     ConfigManager.save()
+    //
+    //     await $('#newsErrorLoading').fadeOut(250).promise()
+    //     await $('#newsErrorNone').fadeIn(250).promise()
+    // } else {
+    //     // Success
+    //     setNewsLoading(false)
+    //
+    //     const lN = newsArr[0]
+    //     const cached = ConfigManager.getNewsCache()
+    //     let newHash = await digestMessage(lN.content)
+    //     let newDate = new Date(lN.date)
+    //     let isNew = false
+    //
+    //     if(cached.date != null && cached.content != null){
+    //
+    //         if(new Date(cached.date) >= newDate){
+    //
+    //             // Compare Content
+    //             if(cached.content !== newHash){
+    //                 isNew = true
+    //                 showNewsAlert()
+    //             } else {
+    //                 if(!cached.dismissed){
+    //                     isNew = true
+    //                     showNewsAlert()
+    //                 }
+    //             }
+    //
+    //         } else {
+    //             isNew = true
+    //             showNewsAlert()
+    //         }
+    //
+    //     } else {
+    //         isNew = true
+    //         showNewsAlert()
+    //     }
+    //
+    //     if(isNew){
+    //         ConfigManager.setNewsCache({
+    //             date: newDate.getTime(),
+    //             content: newHash,
+    //             dismissed: false
+    //         })
+    //         ConfigManager.save()
+    //     }
+    //
+    //     const switchHandler = (forward) => {
+    //         let cArt = parseInt(newsContent.getAttribute('article'))
+    //         let nxtArt = forward ? (cArt >= newsArr.length-1 ? 0 : cArt + 1) : (cArt <= 0 ? newsArr.length-1 : cArt - 1)
+    //
+    //         displayArticle(newsArr[nxtArt], nxtArt+1)
+    //     }
+    //
+    //     document.getElementById('newsNavigateRight').onclick = () => { switchHandler(true) }
+    //     document.getElementById('newsNavigateLeft').onclick = () => { switchHandler(false) }
+    //     await $('#newsErrorContainer').fadeOut(250).promise()
+    //     displayArticle(newsArr[0], 1)
+    //     await $('#newsContent').fadeIn(250).promise()
+    // }
 
 
 }
@@ -920,17 +861,17 @@ document.addEventListener('keydown', (e) => {
         //     document.getElementById('newsButton').click()
         // }
     } else {
-        if(getCurrentView() === VIEWS.landing){
-            if(e.key === 'ArrowUp'){
-                document.getElementById('newsButton').click()
-            }
-        }
+        // if(getCurrentView() === VIEWS.landing){
+        //     if(e.key === 'ArrowUp'){
+        //         document.getElementById('newsButton').click()
+        //     }
+        // }
     }
 })
 
 /**
  * Display a news article on the UI.
- * 
+ *
  * @param {Object} articleObject The article meta object.
  * @param {number} index The article index.
  */
@@ -965,7 +906,7 @@ async function loadNews(){
     }
 
     const promise = new Promise((resolve, reject) => {
-        
+
         const newsFeed = distroData.rawDistribution.rss
         const newsHost = new URL(newsFeed).origin + '/'
         $.ajax({

@@ -1,26 +1,6 @@
 /* Github Code Highlighting. */
 @import "../../../node_modules/github-syntax-dark/lib/github-dark.css";
 
-/*******************************************************************************
- *                                                                             *
- * Fonts                                                                       *
- *                                                                             *
- ******************************************************************************/
-
-@font-face {
-    font-family: 'Avenir Book';
-    src: url('../fonts/Avenir-Book.ttf');
-}
-
-@font-face {
-    font-family: 'Avenir Medium';
-    src: url('../fonts/Avenir-Medium.ttf');
-}
-
-@font-face {
-    font-family: 'Ringbearer';
-    src: url('../fonts/Ringbearer.ttf');
-}
 
 /*******************************************************************************
  *                                                                             *
@@ -42,7 +22,7 @@ p {
 
 /* Set default font and color. */
 body, button {
-    font-family: 'Avenir Book';
+    font-family: "Open Sans", sans-serif;
     color: white;
 }
 
@@ -110,7 +90,7 @@ body, button {
 }
 #frameTitleText {
     font-size: 14px;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     letter-spacing: 0.5px;
 }
 
@@ -209,159 +189,6 @@ body, button {
     background-color: #bfff76;
 }
 
-/*******************************************************************************
- *                                                                             *
- * Welcome View (welcome.ejs)                                                  *
- *                                                                             *
- ******************************************************************************/
-
-#welcomeContainer {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.50);
-}
-
-#welcomeContent {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 50%;
-    top: -10%;
-    position: relative;
-}
-
-/*
-.cloudDiv {
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.cloudTop {
-    height: 50%;
-    width: 100%;
-    background-image: url('../images/cloudTrans.png');
-    animation: clouds1 80s linear infinite;
-    background-size: cover;
-}
-
-.cloudBottom {
-    height: 50%;
-    width: 100%;
-    background-image: url('../images/cloudTrans2.png');
-    animation: clouds2 70s linear infinite;
-    background-size: cover;
-}
-
-@keyframes clouds1 {
-    to {
-        background-position: 200%;
-    }
-}
-@keyframes clouds2 {
-    to {
-        background-position: 230%;
-    }
-}
-*/
-
-#welcomeImageSeal {
-    border-radius: 50%;
-    border: 2px solid #cad7e1;
-    background: rgba(1, 2, 1, 0.5);
-    height: 125px;
-    width: 125px;
-    box-shadow: 0px 0px 10px 0px rgb(0, 0, 0);
-    margin-bottom: 5%;
-    margin-top: 10%;
-}
-
-#welcomeHeader {
-    font-family: 'Avenir Medium';
-    text-align: center;
-    color: white;
-    margin-bottom: 25px;
-    letter-spacing: 1px;
-    font-size: 20px;
-    text-shadow: white 0px 0px 0px;
-}
-
-#welcomeDescription {
-    text-align: justify;
-    font-size: 13px;
-    font-weight: 100;
-    text-shadow: rgba(255, 255, 255, 0.75) 0px 0px 20px
-}
-
-#welcomeDescCTA {
-    text-align: center;
-    font-size: 14px;
-    font-weight: 100;
-    text-shadow: rgba(255, 255, 255, 0.75) 0px 0px 20px
-}
-
-/* Login button styles. */
-#welcomeButton {
-    background: none;
-    font-weight: bold;
-    letter-spacing: 2px;
-    border: none;
-    padding: 15px 5px;
-    margin: 10px 0px;
-    cursor: pointer;
-    position: relative;
-    right: -20px;
-    transition: 0.5s ease;
-    margin-top: 5%;
-    margin-bottom: -5%;
-}
-#welcomeButton:disabled {
-    color: rgba(255, 255, 255, 0.75);
-    pointer-events: none;
-}
-#welcomeButton:hover,
-#welcomeButton:focus {
-    text-shadow: 0px 0px 20px #fff;
-    outline: none;
-}
-#welcomeButton:active {
-    color: #c7c7c7;
-    text-shadow: 0px 0px 20px #c7c7c7;
-}
-#welcomeSVG {
-    -webkit-transform: translate3d(0, 0, 0);
-    overflow: visible;
-    transform: rotate(90deg);
-    margin-left: 20px;
-    transition: 0.25s ease;
-    width: 20px;
-    height: 20px;
-}
-#welcomeButton:hover #welcomeSVG,
-#welcomeButton:focus #welcomeSVG {
-    -webkit-filter: drop-shadow(0px 0px 2px #fff);
-}
-#welcomeButton:active #welcomeSVG .arrowLine {
-    stroke: #c7c7c7;
-}
-#welcomeButton:active #welcomeSVG {
-    -webkit-filter: drop-shadow(0px 0px 2px #c7c7c7);
-}
-#welcomeButton:disabled #welcomeSVG .arrowLine {
-    stroke: rgba(255, 255, 255, 0.75);
-}
-
-#welcomeButtonContent {
-    display: flex;
-    align-items: center;
-}
 
 /*******************************************************************************
  *                                                                             *
@@ -497,7 +324,7 @@ body, button {
 
 /* Header on login view. */
 #loginSubheader {
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     margin-bottom: 25px;
     font-size: 12px;
     letter-spacing: 1px;
@@ -522,7 +349,7 @@ body, button {
 
 /* Span which displays errors related to login field content. */
 .loginErrorSpan {
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     font-weight: bold;
     font-size: 8px;
     color: #ff1b0c;
@@ -542,15 +369,15 @@ body, button {
     10%, 90% {
         transform: translate3d(-1px, 0, 0);
     }
-    
+
     20%, 80% {
         transform: translate3d(2px, 0, 0);
     }
-  
+
     30%, 50%, 70% {
         transform: translate3d(-4px, 0, 0);
     }
-  
+
     40%, 60% {
         transform: translate3d(4px, 0, 0);
     }
@@ -558,7 +385,7 @@ body, button {
 
 /* Login text input styles. */
 .loginField {
-    font-family: 'Avenir Book';
+    font-family: "Open Sans", sans-serif;
     background: none;
     border-width: 1.5px 0px 0px 0px;
     border-style: solid;
@@ -996,7 +823,6 @@ body, button {
     border: 1px solid rgba(126, 126, 126, 0.57);
     border-radius: 3px;
     height: 50px;
-    width: 100%;
     text-align: left;
     padding: 0px 25px;
     cursor: pointer;
@@ -1005,42 +831,14 @@ body, button {
     display: flex;
     align-items: center;
     column-gap: 5px;
+    color: rgba(255, 255, 255, 1);
+    text-decoration: none;
 }
 .loginOptionButton:hover,
 .loginOptionButton:focus {
     background: rgba(54, 54, 54, 0.25);
     text-shadow: 0px 0px 20px white;
 }
-
-#loginOptionCancelContainer {
-    position: absolute;
-    bottom: -100px;
-}
-
-#loginOptionCancelButton {
-    background: none;
-    border: none;
-    padding: 2px 0px;
-    font-size: 16px;
-    font-weight: bold;
-    color: lightgrey;
-    cursor: pointer;
-    outline: none;
-    transition: 0.25s ease;
-}
-#loginOptionCancelButton:hover,
-#loginOptionCancelButton:focus {
-    text-shadow: 0px 0px 20px lightgrey;
-}
-#loginOptionCancelButton:active {
-    text-shadow: 0px 0px 20px rgba(211, 211, 211, 0.75);
-    color: rgba(211, 211, 211, 0.75);
-}
-#loginOptionCancelButton:disabled {
-    color: rgba(211, 211, 211, 0.75);
-    pointer-events: none;
-}
-
 
 /*******************************************************************************
  *                                                                             *
@@ -1222,7 +1020,7 @@ body, button {
 }
 .settingsTabHeaderText {
     font-size: 20px;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
 }
 .settingsTabHeaderDesc {
     font-size: 12px;
@@ -1261,7 +1059,7 @@ body, button {
     background: none;
     font-size: 12px;
     border-radius: 3px;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     transition: 0.25s ease;
     cursor: pointer;
     outline: none;
@@ -1293,7 +1091,7 @@ body, button {
     background: rgba(0, 0, 0, 0.25);
     border-radius: 3px;
     border: 1px solid rgba(126, 126, 126, 0.57);
-    font-family: 'Avenir Book';
+    font-family: "Open Sans", sans-serif;
     transition: 0.25s ease;
 }
 #settingsContainer input[type=number]:focus,
@@ -1322,7 +1120,7 @@ body, button {
 }
 .settingsFieldTitle {
     font-size: 14px;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     color: rgba(255, 255, 255, 0.95);
 }
 .settingsFieldDesc {
@@ -1485,7 +1283,7 @@ input:checked + .toggleSwitchSlider:before {
     width: 89%;
 }
 .settingsFileSelDesc strong {
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
 }
 
 /* * *
@@ -1593,7 +1391,7 @@ input:checked + .toggleSwitchSlider:before {
     font-size: 12px;
     color: grey;
     font-weight: bold;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
 }
 .settingsAuthAccountDetailValue {
     font-size: 14px;
@@ -1615,7 +1413,7 @@ input:checked + .toggleSwitchSlider:before {
     border: none;
     white-space: nowrap;
     background: none;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     outline: none;
     transition: 0.25s ease;
 }
@@ -1640,7 +1438,7 @@ input:checked + .toggleSwitchSlider:before {
     background: none;
     font-size: 12px;
     border-radius: 3px;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     transition: 0.25s ease;
     cursor: pointer;
     outline: none;
@@ -2195,7 +1993,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Release type text. */
 #settingsAboutCurrentVersionTitle {
     font-size: 12px;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     color: #23aa23;
     font-weight: bold;
 }
@@ -2284,7 +2082,7 @@ input:checked + .toggleSwitchSlider:before {
     background-color: rgba(255, 255, 255, 0.25);
     color: white;
     border-radius: 3px;
-    font-family: 'Avenir Book';
+    font-family: "Open Sans", sans-serif;
 }
 .settingsChangelogText li+li {
     margin-top: .25em;
@@ -2394,7 +2192,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Release type text. */
 #settingsUpdateVersionTitle {
     font-size: 12px;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     color: #23aa23;
     font-weight: bold;
 }
@@ -2593,7 +2391,7 @@ input:checked + .toggleSwitchSlider:before {
 #newsArticleTitle {
     font-size: 18px;
     font-weight: bold;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     color: white;
     text-decoration: none;
     transition: 0.25s ease;
@@ -2858,9 +2656,7 @@ input:checked + .toggleSwitchSlider:before {
     height: 70px;
     width: auto;
     position: relative;
-    border: 2px solid white;
     box-sizing: border-box;
-    border-radius: 50%;
 }
 
 /* Logo container styles. */
@@ -2910,7 +2706,7 @@ input:checked + .toggleSwitchSlider:before {
     z-index: 1;
     top: 115%;
     left: -17.5px;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     font-size: 12px;
     transition: visibility 0s linear 0.25s, opacity 0.25s ease;
 }
@@ -3136,34 +2932,6 @@ input:checked + .toggleSwitchSlider:before {
     transition-delay:0s;
 }
 
-/* Twitter icon colors. */
-#twitterSVG:hover,
-#twitterURL:focus #twitterSVG {
-    fill: #1da1f2;
-}
-#twitterSVG:active {
-    fill: #1b8dd4;
-}
-
-/* Instagram icon colors. */
-#instagramSVG:hover,
-#instagramURL:focus #instagramSVG {
-    fill: url('#instaFill')
-    /*fill: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%); */
-}
-#instagramSVG:active {
-    fill: url('#instaFill')
-}
-
-/* Youtube icon colors. */
-#youtubeSVG:hover,
-#youtubeURL:focus #youtubeSVG {
-    fill: #f00;
-}
-#youtubeSVG:active {
-    fill: #ea0202;
-}
-
 /* Discord icon colors. */
 #discordSVG:hover,
 #discordURL:focus #discordSVG {
@@ -3213,109 +2981,6 @@ input:checked + .toggleSwitchSlider:before {
     font-weight: 900;
     text-shadow: 0px 0px 20px #949494;
     margin-left: 10px;
-}
-
-/* Wrapper container for the mojang status bar. */
-#mojangStatusWrapper {
-    position: relative;
-    display: flex;
-    cursor: pointer;
-}
-
-/* Icon which displays the status of the mojang services. */
-#mojang_status_icon {
-    font-size: 30px;
-    color: #848484;
-    margin-left: 15px;
-    font-family: 'sans-serif';
-}
-
-/* Tooltip which displays more details about the mojang statuses. */
-#mojangStatusTooltip {
-    position: absolute;
-    visibility: hidden;
-    opacity: 0;
-    width: 145px;
-    min-height: 150px;
-    background-color: rgba(0, 0, 0, 0.75);
-    color: #fff;
-    border-radius: 4px;
-    padding: 5px 10px;
-    z-index: 1;
-    font-family: 'Avenir Medium';
-    font-size: 12px;
-    transition: visibility 0s linear 0.25s, opacity 0.25s ease;
-    bottom: calc(100% + 15px);
-    transform: translateX(-50%);
-    margin-left: 50%;
-    box-shadow: 0px 0px 20px rgb(0, 0, 0);
-    cursor: default;
-}
-#mojangStatusTooltip:after {
-    content: " ";
-    position: absolute;
-    left: 50%;
-    top: 100%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: rgba(0, 0, 0, 0.75) transparent transparent transparent;
-}
-#mojangStatusWrapper:hover #mojangStatusTooltip {
-    visibility: visible;
-    opacity: 1;
-    transition-delay: 0s;
-}
-
-/* Tooltip title for the mojang statuses. */
-#mojangStatusTooltipTitle {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 5px;
-    letter-spacing: 1px;
-}
-
-/* Wrapper container for the non essential services title. */
-#mojangStatusNEContainer {
-    display: flex;
-    align-items: center;
-    margin: 10px 0px;
-}
-
-/* White bar which surrounds the non essential service title. */
-.mojangStatusNEBar {
-    height: 1px;
-    width: 100%;
-    background: white;
-}
-
-/* Non essential service title text. */
-#mojangStatusNETitle {
-    font-size: 10px;
-    padding: 0px 3px;
-    text-align: center;
-    letter-spacing: 1px;
-}
-
-/* Wrapper container for mojang service information. */
-.mojangStatusContainer {
-    display: flex;
-}
-
-/* Displays the name of the mojang service. */
-.mojangStatusName {
-    width: 100%;
-    font-size: 10px;
-    letter-spacing: 1px;
-    line-height: 12px;
-    padding: 6px 0px;
-}
-
-/* Displays the status of the mojang service. */
-.mojangStatusIcon {
-    margin-right: 10px;
-    font-size: 18.5px;
-    color: #848484;
 }
 
 /* * *
@@ -3426,7 +3091,7 @@ input:checked + .toggleSwitchSlider:before {
     top: 25px;
     display: none;
 }
- 
+
 /* Left side of launch details container, displays percentage and a divider. */
 #launch_details_left {
     display: flex;
@@ -3557,7 +3222,7 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Overlay title styles. */
 #overlayTitle {
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     font-size: 20px;
     font-weight: bold;
     letter-spacing: 1px;
@@ -3583,7 +3248,7 @@ input:checked + .toggleSwitchSlider:before {
     background: none;
     border: 1px solid #ffffff;
     color: white;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     font-weight: bold;
     border-radius: 2px;
     padding: 0px 8.1px;
@@ -3635,7 +3300,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Server selection header. */
 #serverSelectHeader,
 #accountSelectHeader {
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     font-size: 20px;
     font-weight: bold;
     color: #fff;
@@ -3858,7 +3523,7 @@ input:checked + .toggleSwitchSlider:before {
     background: none;
     border: 1px solid #ffffff;
     color: white;
-    font-family: 'Avenir Medium';
+    font-family: "Open Sans", sans-serif;
     font-weight: bold;
     border-radius: 2px;
     padding: 0px 8.1px;
@@ -3943,13 +3608,6 @@ input:checked + .toggleSwitchSlider:before {
     position: absolute;
     width: 277px;
     height: auto;
-}
-
-/* Rotating image for the spinner. */
-#loadSpinnerImage {
-    width: 280px;
-    height: auto;
-    z-index: 400;
 }
 
 /* Rotating animation for the spinner. */
