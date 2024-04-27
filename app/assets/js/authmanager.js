@@ -317,6 +317,7 @@ exports.removeMicrosoftAccount = async function(uuid){
  * @returns {Promise.<boolean>} Promise which resolves to true if the access token is valid,
  * otherwise false.
  */
+<<<<<<< Updated upstream
 async function validateSelectedMojangAccount(){
     const current = ConfigManager.getSelectedAccount()
     const response = await MojangRestAPI.validate(current.accessToken, ConfigManager.getClientToken())
@@ -405,6 +406,9 @@ async function validateSelectedMicrosoftAccount(){
             return false
         }
     }
+=======
+async function validateCGNAccount(){
+>>>>>>> Stashed changes
 }
 
 /**

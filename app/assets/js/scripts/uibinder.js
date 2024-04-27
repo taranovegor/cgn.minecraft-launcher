@@ -324,6 +324,7 @@ function mergeModConfiguration(o, n, nReq = false){
 }
 
 async function validateSelectedAccount(){
+<<<<<<< Updated upstream
     const selectedAcc = ConfigManager.getSelectedAccount()
     if(selectedAcc != null){
         const val = await AuthManager.validateSelected()
@@ -403,6 +404,9 @@ async function validateSelectedAccount(){
     } else {
         return true
     }
+=======
+    return true
+>>>>>>> Stashed changes
 }
 
 /**
