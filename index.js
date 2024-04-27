@@ -146,6 +146,11 @@ app.disableHardwareAcceleration()
 let win
 
 function createWindow() {
+    let additionalArguments = []
+    try {
+        additionalArguments[0] = (new URL(process.argv.slice(-1))).toString()
+    } catch (err) {
+    }
 
     win = new BrowserWindow({
         width: 980,
@@ -155,7 +160,8 @@ function createWindow() {
         webPreferences: {
             preload: path.join(__dirname, 'app', 'assets', 'js', 'preloader.js'),
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            additionalArguments: additionalArguments,
         },
         backgroundColor: '#171614',
     })

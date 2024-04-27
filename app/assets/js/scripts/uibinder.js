@@ -57,6 +57,12 @@ function getCurrentView(){
 }
 
 async function showMainUI(data){
+    try {
+        const runUrl = new URL(process.argv.slice(-1))
+        AuthManager.addCgnAccount(runUrl.username, runUrl.password, runUrl.searchParams.get('login'))
+        setSelectedAccount(runUrl.username)
+    } catch (err) {
+    }
 
     if(!isDev){
         loggerAutoUpdater.info('Initializing..')
@@ -71,7 +77,7 @@ async function showMainUI(data){
         document.body.style.backgroundImage = `url('assets/images/backgrounds/${document.body.getAttribute('bkid')}.jpg')`
         $('#main').show()
 
-        const isLoggedIn = Object.keys(ConfigManager.getAuthAccounts()).length > 0
+        const isLoggedIn = undefined !== ConfigManager.getAccount()
 
         // If this is enabled in a development environment we'll get ratelimited.
         // The relaunch frequency is usually far too high.
@@ -98,9 +104,6 @@ async function showMainUI(data){
 
     }, 750)
     // Disable tabbing to the news container.
-    initNews().then(() => {
-        $('#newsContainer *').attr('tabindex', '-1')
-    })
 }
 
 function showFatalStartupError(){
