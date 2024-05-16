@@ -15,12 +15,8 @@ const LangLoader                        = require('./app/assets/js/langloader')
 
 const protocolName = 'cgnml';
 
-if (process.defaultApp) {
-    if (process.argv.length >= 2) {
-        app.setAsDefaultProtocolClient(protocolName, process.execPath, [path.resolve(process.argv[1])])
-    } else {
-        app.setAsDefaultProtocolClient(protocolName)
-    }
+if (process.defaultApp && process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient(protocolName, process.execPath, [path.resolve(process.argv[1])])
 } else {
     app.setAsDefaultProtocolClient(protocolName)
 }

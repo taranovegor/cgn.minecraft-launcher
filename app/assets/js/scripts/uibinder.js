@@ -74,7 +74,7 @@ async function showMainUI(data){
     refreshServerStatus()
     setTimeout(() => {
         document.getElementById('frameBar').style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
-        document.body.style.backgroundImage = `url('assets/images/backgrounds/${document.body.getAttribute('bkid')}.jpg')`
+        document.body.style.backgroundImage = `url('assets/images/backgrounds/${document.body.getAttribute('bkid')}.png')`
         $('#main').show()
 
         const isLoggedIn = undefined !== ConfigManager.getAccount()
@@ -321,7 +321,47 @@ function mergeModConfiguration(o, n, nReq = false){
 }
 
 async function validateSelectedAccount(){
-    return true
+    const selectedAcc = ConfigManager.getAccount()
+    if(selectedAcc != null){
+        const val = await AuthManager.validateAccount()
+        if(!val){
+            setOverlayContent(
+                Lang.queryJS('uibinder.validateAccount.failedMessageTitle'),
+                Lang.queryJS('uibinder.validateAccount.failedMessage', { 'account': selectedAcc.displayName }),
+                Lang.queryJS('uibinder.validateAccount.loginButton'),
+                Lang.queryJS('uibinder.validateAccount.selectAnotherAccountButton')
+            )
+            setOverlayHandler(() => {
+                document.getElementById('loginUsername').value = selectedAcc.username
+                validateEmail(selectedAcc.username)
+
+                loginOptionsViewOnLoginSuccess = getCurrentView()
+                loginOptionsViewOnLoginCancel = VIEWS.loginOptions
+
+                loginOptionsViewOnCancel = getCurrentView()
+                loginOptionsViewCancelHandler = () => {
+                    ConfigManager.addCgnAccount(selectedAcc.uuid, selectedAcc.accessToken, selectedAcc.username, selectedAcc.displayName)
+                    ConfigManager.save()
+                    validateSelectedAccount()
+                }
+                loginOptionsCancelEnabled(false)
+                toggleOverlay(false)
+                switchView(getCurrentView(), VIEWS.loginOptions)
+            })
+            setDismissHandler(() => {
+                const accountsObj = ConfigManager.getAuthAccounts()
+                const accounts = Array.from(Object.keys(accountsObj), v => accountsObj[v])
+                // This function validates the account switch.
+                setSelectedAccount(accounts[0].uuid)
+                toggleOverlay(false)
+            })
+            toggleOverlay(true, true)
+        } else {
+            return true
+        }
+    } else {
+        return true
+    }
 }
 
 /**

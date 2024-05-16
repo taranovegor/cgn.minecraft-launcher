@@ -1,7 +1,7 @@
 # Custom Language File for Launcher Customizer
 
 [ejs.app]
-title = "CraftGame.net // Minecraft"
+title = "CraftGame.net / Launcher"
 loginUrl = "http://craftgame.net/launcher/auth"
 
 [ejs.landing]

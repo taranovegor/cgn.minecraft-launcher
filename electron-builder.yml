@@ -1,5 +1,5 @@
 appId: 'cgn.mcl'
-productName: 'CraftGame.net Launcher'
+productName: 'cgn-launcher-setup'
 artifactName: '${productName} ${version}.${ext}'
 
 copyright: 'Copyright © 2024 CraftGame.net'

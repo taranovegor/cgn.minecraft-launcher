@@ -24,14 +24,13 @@ const log = LoggerUtil.getLogger('AuthManager')
  * @param {string} uuid The uuid of the authenticated account.
  * @param {string} accessToken The accessToken of the authenticated account.
  * @param {string} username The username (usually email) of the authenticated account.
+ * @param {string} clientToken The client token of the authenticated account
  *
  * @returns {Object} The authenticated account object created by this action.
  */
-exports.addCgnAccount = function (uuid, accessToken, username) {
-    const ret = ConfigManager.addCgnAccount(uuid, accessToken, username)
-    if(ConfigManager.getClientToken() == null){
-        ConfigManager.setClientToken(accessToken)
-    }
+exports.addCgnAccount = function (uuid, accessToken, username, clientToken) {
+    ConfigManager.addCgnAccount(uuid, accessToken, username)
+    ConfigManager.setClientToken(clientToken)
     ConfigManager.save()
 }
 
@@ -56,7 +55,26 @@ exports.removeCgnAccount = function(uuid){
  * otherwise false.
  */
 async function validateCGNAccount(){
-    return true
+    const current = ConfigManager.getAccount()
+    const response = await MojangRestAPI.validate(current.accessToken, ConfigManager.getClientToken())
+
+    if(response.responseStatus === RestResponseStatus.SUCCESS) {
+        const refreshResponse = await MojangRestAPI.refresh(current.accessToken, ConfigManager.getClientToken())
+        if(refreshResponse.responseStatus === RestResponseStatus.SUCCESS) {
+            const session = refreshResponse.data
+            ConfigManager.updateCgnAuthAccount(current.uuid, session.selectedProfile.name, session.accessToken)
+            ConfigManager.save()
+        } else {
+            log.error('Error while validating selected profile:', refreshResponse.error)
+            log.info('Account access token is invalid.')
+
+            return false
+        }
+
+        return true
+    }
+
+    return false
 }
 
 /**
@@ -65,6 +83,6 @@ async function validateCGNAccount(){
  * @returns {Promise.<boolean>} Promise which resolves to true if the access token is valid,
  * otherwise false.
  */
-exports.validate = async function(){
+exports.validateAccount = async function(){
     return await validateCGNAccount()
 }

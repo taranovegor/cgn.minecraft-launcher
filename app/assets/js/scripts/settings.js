@@ -355,7 +355,7 @@ ipcRenderer.on(CGN_OPCODE.REPLY_LOGIN, (_, ...arguments_) => {
     const viewOnClose = arguments_[2]
     const url = new URL(arguments_[1])
 
-    AuthManager.addCgnAccount(url.username, url.password, url.searchParams.get('login'))
+    AuthManager.addCgnAccount(url.username, url.password, url.searchParams.get('login'), url.searchParams.get('token'))
 
     updateSelectedAccount(ConfigManager.getAccount())
     switchView(getCurrentView(), viewOnClose, 500, 500, async () => {
@@ -1126,7 +1126,7 @@ function populateAboutVersionInformation(){
  */
 function populateReleaseNotes(){
     $.ajax({
-        url: 'https://github.com/dscalzi/HeliosLauncher/releases.atom',
+        url: 'https://github.com/taranovegor/cgn.minecraft-launcher/releases.atom',
         success: (data) => {
             const version = 'v' + remote.app.getVersion()
             const entries = $(data).find('entry')
