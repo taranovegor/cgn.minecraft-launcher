@@ -417,14 +417,24 @@ class ProcessBuilder {
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=HeliosLauncher')
+            args.push('-Xdock:name=CraftGame')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))
         args.push('-Xms' + ConfigManager.getMinRAM(this.server.rawServer.id))
         args = args.concat(ConfigManager.getJVMOptions(this.server.rawServer.id))
-        // todo: bugfix
-        args.push('-javaagent:'+ConfigManager.getDataDirectory()+'/common/libraries/net/authlib/authlib-injector-1.2.5/undefined/authlib-injector-1.2.5-undefined.jar=https://ygg.mc.craftgame.net/authlib-injector')
+
+        const newAuthlib = ConfigManager.getDataDirectory()+'/common/libraries/net/authlib/authlib-injector/undefined/authlib-injector-undefined.jar';
+        const oldAuthlib = ConfigManager.getDataDirectory()+'/common/libraries/net/authlib/authlib-injector-1.2.5/undefined/authlib-injector-1.2.5-undefined.jar';
+        [oldAuthlib, newAuthlib].some((e) => {
+            if (!fs.existsSync(e)) {
+                return false
+            }
+
+            args.push('-javaagent:'+e+'=https://ygg.mc.craftgame.net/authlib-injector')
+
+            return true
+        })
 
         // Main Java Class
         args.push(this.modManifest.mainClass)
