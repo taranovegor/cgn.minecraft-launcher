@@ -436,6 +436,12 @@ class ProcessBuilder {
             return true
         })
 
+        args.push('-Dminecraft.api.env=custom')
+        args.push('-Dminecraft.api.auth.host=https://ygg.mc.craftgame.net/authlib-injector/authserver')
+        args.push('-Dminecraft.api.account.host=https://ygg.mc.craftgame.net/authlib-injector/api')
+        args.push('-Dminecraft.api.session.host=https://ygg.mc.craftgame.net/authlib-injector/sessionserver')
+        args.push('-Dminecraft.api.services.host=https://ygg.mc.craftgame.net/authlib-injector/minecraftservices')
+
         // Main Java Class
         args.push(this.modManifest.mainClass)
 
