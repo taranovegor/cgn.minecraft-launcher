@@ -81,8 +81,7 @@ const DEFAULT_CONFIG = {
             resWidth: 1280,
             resHeight: 720,
             fullscreen: false,
-            autoConnect: true,
-            launchDetached: true
+            autoConnect: true
         },
         launcher: {
             allowPrerelease: false,
@@ -702,25 +701,6 @@ exports.getAutoConnect = function(def = false){
  */
 exports.setAutoConnect = function(autoConnect){
     config.settings.game.autoConnect = autoConnect
-}
-
-/**
- * Check if the game should launch as a detached process.
- *
- * @param {boolean} def Optional. If true, the default value will be returned.
- * @returns {boolean} Whether or not the game will launch as a detached process.
- */
-exports.getLaunchDetached = function(def = false){
-    return !def ? config.settings.game.launchDetached : DEFAULT_CONFIG.settings.game.launchDetached
-}
-
-/**
- * Change the status of whether or not the game should launch as a detached process.
- *
- * @param {boolean} launchDetached Whether or not the game should launch as a detached process.
- */
-exports.setLaunchDetached = function(launchDetached){
-    config.settings.game.launchDetached = launchDetached
 }
 
 // Launcher Settings
