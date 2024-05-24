@@ -6,5 +6,6 @@ loginUrl = "http://craftgame.net/launcher/auth"
 
 [ejs.landing]
 mediaWebsiteURL = "http://craftgame.net/"
+mediaMapUrl = "http://link.craftgame.net/cgnmv"
 mediaGitHubURL = "http://craftgame.net/"
 mediaDiscordURL = "http://link.craftgame.net/cgnds"
