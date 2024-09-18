@@ -19,12 +19,6 @@ function loginOptionsCancelEnabled(val){
 
 loginOptionWebsite.onclick = (e) => {
     switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
-        ipcRenderer.send(
-            CGN_OPCODE.OPEN_LOGIN,
-            loginOptionsViewOnLoginSuccess,
-            loginOptionsViewOnLoginCancel
-        )
-
         shell.openExternal('https://craftgame.net/launcher/auth')
     })
 }

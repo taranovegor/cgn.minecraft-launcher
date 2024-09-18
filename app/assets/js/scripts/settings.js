@@ -351,14 +351,13 @@ const msftLogoutLogger = LoggerUtil.getLogger('Microsoft Logout')
 //     })
 // }
 
-ipcRenderer.on(CGN_OPCODE.REPLY_LOGIN, (_, ...arguments_) => {
-    const viewOnClose = arguments_[2]
-    const url = new URL(arguments_[1])
+ipcRenderer.on(CGN_OPCODE.ON_LOGIN, (_, ...arguments_) => {
+    const url = new URL(arguments_[0])
 
     AuthManager.addCgnAccount(url.username, url.password, url.searchParams.get('login'), url.searchParams.get('token'))
 
     updateSelectedAccount(ConfigManager.getAccount())
-    switchView(getCurrentView(), viewOnClose, 500, 500, async () => {
+    switchView(getCurrentView(), VIEWS.landing, 500, 500, async () => {
         await prepareSettings()
     })
 })

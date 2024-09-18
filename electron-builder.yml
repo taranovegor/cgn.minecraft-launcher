@@ -44,7 +44,9 @@ linux:
     synopsis: 'CraftGame.net Minecraft Launcher'
     description: 'Launcher to play on CraftGame.net'
     category: 'Game'
-
+    mimeTypes: [x-scheme-handler/cgnml]
+    desktop:
+        exec: cgnml %u
 
 directories:
     buildResources: 'build'

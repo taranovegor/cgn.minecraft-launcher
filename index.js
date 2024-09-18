@@ -2,7 +2,7 @@ const remoteMain = require('@electron/remote/main')
 remoteMain.initialize()
 
 // Requirements
-const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron')
 const autoUpdater                       = require('electron-updater').autoUpdater
 const ejse                              = require('ejs-electron')
 const fs                                = require('fs')
@@ -12,35 +12,11 @@ const semver                            = require('semver')
 const { pathToFileURL }                 = require('url')
 const { SHELL_OPCODE, CGN_OPCODE, CGN_REPLY_TYPE} = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
+const deeplink = require('electron-app-universal-protocol-client').default;
 
-const protocolName = 'cgnml';
-
-if (process.defaultApp && process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient(protocolName, process.execPath, [path.resolve(process.argv[1])])
-} else {
-    app.setAsDefaultProtocolClient(protocolName)
+if (!app.requestSingleInstanceLock()) {
+    return app.quit()
 }
-
-const gotTheLock = app.requestSingleInstanceLock()
-
-if (!gotTheLock) {
-    app.quit()
-
-    return
-}
-
-ipcMain.on(CGN_OPCODE.OPEN_LOGIN, (ipcEvent, ...arguments_) => {
-    app.on('second-instance', (event, commandLine, workingDirectory) => {
-        if (win) {
-            if (win.isMinimized()) {
-                win.restore()
-            }
-            win.focus()
-        }
-        ipcEvent.reply(CGN_OPCODE.REPLY_LOGIN, CGN_REPLY_TYPE.SUCCESS, commandLine.pop(), arguments_[0])
-    })
-});
-
 
 // Setup Lang
 LangLoader.setupLanguage()
@@ -177,6 +153,20 @@ function createWindow() {
 
     win.on('closed', () => {
         win = null
+    })
+
+    deeplink.on('request', async (requestUrl) => {
+        if (win.isMinimized()) {
+            win.restore()
+        }
+        win.focus()
+
+        win.webContents.send(CGN_OPCODE.ON_LOGIN, requestUrl)
+    })
+
+    deeplink.initialize({
+        protocol: 'cgnml',
+        mode: isDev ? 'development' : 'production',
     })
 }
 
