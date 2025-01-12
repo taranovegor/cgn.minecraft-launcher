@@ -2,7 +2,7 @@ appId: 'cgn.mcl'
 productName: 'cgn-launcher-setup'
 artifactName: '${productName} ${version}.${ext}'
 
-copyright: 'Copyright © 2024 CraftGame.net'
+copyright: 'Copyright © 2025 CraftGame.net'
 
 asar: true
 compression: 'maximum'
