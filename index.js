@@ -2,49 +2,20 @@ const remoteMain = require('@electron/remote/main')
 remoteMain.initialize()
 
 // Requirements
-const { app, BrowserWindow, ipcMain, Menu, shell, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, Menu, shell } = require('electron')
 const autoUpdater                       = require('electron-updater').autoUpdater
 const ejse                              = require('ejs-electron')
-const fs                                = require('fs')
 const isDev                             = require('./app/assets/js/isdev')
 const path                              = require('path')
 const semver                            = require('semver')
 const { pathToFileURL }                 = require('url')
 const { SHELL_OPCODE, CGN_OPCODE, CGN_REPLY_TYPE} = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
+const deeplink = require('electron-app-universal-protocol-client').default;
 
-const protocolName = 'cgnml';
-
-if (process.defaultApp) {
-    if (process.argv.length >= 2) {
-        app.setAsDefaultProtocolClient(protocolName, process.execPath, [path.resolve(process.argv[1])])
-    } else {
-        app.setAsDefaultProtocolClient(protocolName)
-    }
-} else {
-    app.setAsDefaultProtocolClient(protocolName)
+if (!app.requestSingleInstanceLock()) {
+    return app.quit()
 }
-
-const gotTheLock = app.requestSingleInstanceLock()
-
-if (!gotTheLock) {
-    app.quit()
-
-    return
-}
-
-ipcMain.on(CGN_OPCODE.OPEN_LOGIN, (ipcEvent, ...arguments_) => {
-    app.on('second-instance', (event, commandLine, workingDirectory) => {
-        if (win) {
-            if (win.isMinimized()) {
-                win.restore()
-            }
-            win.focus()
-        }
-        ipcEvent.reply(CGN_OPCODE.REPLY_LOGIN, CGN_REPLY_TYPE.SUCCESS, commandLine.pop(), arguments_[0])
-    })
-});
-
 
 // Setup Lang
 LangLoader.setupLanguage()
@@ -146,23 +117,28 @@ app.disableHardwareAcceleration()
 let win
 
 function createWindow() {
+    let additionalArguments = []
+    try {
+        additionalArguments[0] = (new URL(process.argv.slice(-1))).toString()
+    } catch (err) {
+    }
 
     win = new BrowserWindow({
-        width: 980,
-        height: 640,
+        width: 540,
+        height: 720,
         icon: getPlatformIcon('SealCircle'),
         frame: false,
         webPreferences: {
             preload: path.join(__dirname, 'app', 'assets', 'js', 'preloader.js'),
             nodeIntegration: true,
-            contextIsolation: false
+            contextIsolation: false,
+            additionalArguments: additionalArguments,
         },
         backgroundColor: '#171614',
     })
     remoteMain.enable(win.webContents)
 
     const data = {
-        bkid: Math.floor((Math.random() * fs.readdirSync(path.join(__dirname, 'app', 'assets', 'images', 'backgrounds')).length)),
         lang: (str, placeHolders) => LangLoader.queryEJS(str, placeHolders)
     }
     Object.entries(data).forEach(([key, val]) => ejse.data(key, val))
@@ -175,6 +151,20 @@ function createWindow() {
 
     win.on('closed', () => {
         win = null
+    })
+
+    deeplink.on('request', async (requestUrl) => {
+        if (win.isMinimized()) {
+            win.restore()
+        }
+        win.focus()
+
+        win.webContents.send(CGN_OPCODE.ON_LOGIN, requestUrl)
+    })
+
+    deeplink.initialize({
+        protocol: 'cgnml',
+        mode: isDev ? 'development' : 'production',
     })
 }
 

@@ -351,14 +351,13 @@ const msftLogoutLogger = LoggerUtil.getLogger('Microsoft Logout')
 //     })
 // }
 
-ipcRenderer.on(CGN_OPCODE.REPLY_LOGIN, (_, ...arguments_) => {
-    const viewOnClose = arguments_[2]
-    const url = new URL(arguments_[1])
+ipcRenderer.on(CGN_OPCODE.ON_LOGIN, (_, ...arguments_) => {
+    const url = new URL(arguments_[0])
 
-    AuthManager.addCgnAccount(url.username, url.password, url.searchParams.get('login'))
+    AuthManager.addCgnAccount(url.username, url.password, url.searchParams.get('login'), url.searchParams.get('token'))
 
     updateSelectedAccount(ConfigManager.getAccount())
-    switchView(getCurrentView(), viewOnClose, 500, 500, async () => {
+    switchView(getCurrentView(), VIEWS.landing, 500, 500, async () => {
         await prepareSettings()
     })
 })
@@ -465,10 +464,6 @@ function populateAuthAccounts(){
                     <div class="settingsAuthAccountDetailPane">
                         <div class="settingsAuthAccountDetailTitle">${Lang.queryJS('settings.authAccountPopulate.username')}</div>
                         <div class="settingsAuthAccountDetailValue">${acc.displayName}</div>
-                    </div>
-                    <div class="settingsAuthAccountDetailPane">
-                        <div class="settingsAuthAccountDetailTitle">${Lang.queryJS('settings.authAccountPopulate.uuid')}</div>
-                        <div class="settingsAuthAccountDetailValue">${acc.uuid}</div>
                     </div>
                 </div>
                 <div class="settingsAuthAccountActions">
@@ -1075,10 +1070,10 @@ const settingsAboutChangelogText   = settingsTabAbout.getElementsByClassName('se
 const settingsAboutChangelogButton = settingsTabAbout.getElementsByClassName('settingsChangelogButton')[0]
 
 // Bind the devtools toggle button.
-// document.getElementById('settingsAboutDevToolsButton').onclick = (e) => {
-//     let window = remote.getCurrentWindow()
-//     window.toggleDevTools()
-// }
+document.getElementById('settingsAboutDevToolsButton').onclick = (e) => {
+    let window = remote.getCurrentWindow()
+    window.toggleDevTools()
+}
 
 /**
  * Return whether or not the provided version is a prerelease.
@@ -1126,7 +1121,7 @@ function populateAboutVersionInformation(){
  */
 function populateReleaseNotes(){
     $.ajax({
-        url: 'https://github.com/dscalzi/HeliosLauncher/releases.atom',
+        url: 'https://github.com/taranovegor/cgn.minecraft-launcher/releases.atom',
         success: (data) => {
             const version = 'v' + remote.app.getVersion()
             const entries = $(data).find('entry')

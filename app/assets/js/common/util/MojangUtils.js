@@ -53,9 +53,10 @@ function mcVersionAtLeast(desired, actual) {
     const des = desired.split('.');
     const act = actual.split('.');
     for (let i = 0; i < des.length; i++) {
-        if (!(parseInt(act[i]) >= parseInt(des[i]))) {
-            return false;
-        }
+        const d = parseInt(des[i]);
+        const a = parseInt(act[i] ?? 0);
+        if (a > d) return true;
+        if (a < d) return false;
     }
     return true;
 }

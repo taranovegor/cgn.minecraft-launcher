@@ -104,9 +104,9 @@ class HeliosServer {
     }
     defaultUndefinedJavaOptions(props) {
         return {
-            supported: props.distribution ?? (0, MojangUtils_1.mcVersionAtLeast)('1.17', this.rawServer.minecraftVersion) ? '>=17.x' : '8.x',
-            distribution: props.distribution ?? process.platform === helios_distribution_types_1.Platform.DARWIN ? helios_distribution_types_1.JdkDistribution.CORRETTO : helios_distribution_types_1.JdkDistribution.TEMURIN,
-            suggestedMajor: props.suggestedMajor ?? (0, MojangUtils_1.mcVersionAtLeast)('1.17', this.rawServer.minecraftVersion) ? 17 : 8,
+            supported: props.supported ?? ((0, MojangUtils_1.mcVersionAtLeast)('1.17', this.rawServer.minecraftVersion) ? '>=17.x' : '8.x'),
+            distribution: props.distribution ?? (process.platform === helios_distribution_types_1.Platform.DARWIN ? helios_distribution_types_1.JdkDistribution.CORRETTO : helios_distribution_types_1.JdkDistribution.TEMURIN),
+            suggestedMajor: props.suggestedMajor ?? ((0, MojangUtils_1.mcVersionAtLeast)('1.17', this.rawServer.minecraftVersion) ? 17 : 8),
         };
     }
 }

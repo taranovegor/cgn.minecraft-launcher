@@ -1,7 +1,6 @@
 
 exports.CGN_OPCODE = {
-    OPEN_LOGIN: 'CGN_AUTH_OPEN_LOGIN',
-    REPLY_LOGIN: 'CGN_AUTH_REPLY_LOGIN',
+    ON_LOGIN: 'CGN_ON_LOGIN',
 }
 
 exports.CGN_REPLY_TYPE = {

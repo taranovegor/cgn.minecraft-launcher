@@ -3,7 +3,22 @@ const child_process         = require('child_process')
 const crypto                = require('crypto')
 const fs                    = require('fs-extra')
 const { LoggerUtil }        = require('helios-core')
-const { getMojangOS, isLibraryCompatible, mcVersionAtLeast }  = require('helios-core/common')
+const { getMojangOS, isLibraryCompatible }  = require('helios-core/common')
+
+// helios-core's mcVersionAtLeast incorrectly compares versions where the
+// major component exceeds the desired major (e.g. 26.1.2 vs 1.13 → false).
+// This local override short-circuits as soon as a higher major is detected.
+function mcVersionAtLeast(desired, actual) {
+    const des = desired.split('.')
+    const act = actual.split('.')
+    for (let i = 0; i < des.length; i++) {
+        const d = parseInt(des[i])
+        const a = parseInt(act[i] ?? 0)
+        if (a > d) return true
+        if (a < d) return false
+    }
+    return true
+}
 const { Type }              = require('helios-distribution-types')
 const os                    = require('os')
 const path                  = require('path')
@@ -75,13 +90,10 @@ class ProcessBuilder {
 
         const child = child_process.spawn(ConfigManager.getJavaExecutable(this.server.rawServer.id), args, {
             cwd: this.gameDir,
-            detached: ConfigManager.getLaunchDetached()
+            detached: false
         })
 
-        if(ConfigManager.getLaunchDetached()){
-            child.unref()
-        }
-
+        child.unref()
         child.stdout.setEncoding('utf8')
         child.stderr.setEncoding('utf8')
 
@@ -415,18 +427,32 @@ class ProcessBuilder {
             }
         }
 
-        //args.push('-Dlog4j.configurationFile=D:\\WesterosCraft\\game\\common\\assets\\log_configs\\client-1.12.xml')
-
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=HeliosLauncher')
+            args.push('-Xdock:name=CraftGame')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))
         args.push('-Xms' + ConfigManager.getMinRAM(this.server.rawServer.id))
         args = args.concat(ConfigManager.getJVMOptions(this.server.rawServer.id))
-        // todo: bugfix
-        args.push('-javaagent:'+ConfigManager.getDataDirectory()+'/common/libraries/net/authlib/authlib-injector-1.2.5/undefined/authlib-injector-1.2.5-undefined.jar=https://ygg.mc.craftgame.net/authlib-injector')
+
+        const newAuthlib = ConfigManager.getDataDirectory()+'/common/libraries/net/authlib/authlib-injector/undefined/authlib-injector-undefined.jar';
+        const oldAuthlib = ConfigManager.getDataDirectory()+'/common/libraries/net/authlib/authlib-injector-1.2.5/undefined/authlib-injector-1.2.5-undefined.jar';
+        [oldAuthlib, newAuthlib].some((e) => {
+            if (!fs.existsSync(e)) {
+                return false
+            }
+
+            args.push('-javaagent:'+e+'=https://ygg.mc.craftgame.net/authlib-injector')
+
+            return true
+        })
+
+        args.push('-Dminecraft.api.env=custom')
+        args.push('-Dminecraft.api.auth.host=https://ygg.mc.craftgame.net/authlib-injector/authserver')
+        args.push('-Dminecraft.api.account.host=https://ygg.mc.craftgame.net/authlib-injector/api')
+        args.push('-Dminecraft.api.session.host=https://ygg.mc.craftgame.net/authlib-injector/sessionserver')
+        args.push('-Dminecraft.api.services.host=https://ygg.mc.craftgame.net/authlib-injector/minecraftservices')
 
         // Main Java Class
         args.push(this.modManifest.mainClass)
@@ -523,7 +549,7 @@ class ProcessBuilder {
                             val = args[i].replace(argDiscovery, tempNativePath)
                             break
                         case 'launcher_name':
-                            val = args[i].replace(argDiscovery, 'Helios-Launcher')
+                            val = args[i].replace(argDiscovery, 'CraftGame Launcher')
                             break
                         case 'launcher_version':
                             val = args[i].replace(argDiscovery, this.launcherVersion)
@@ -548,7 +574,12 @@ class ProcessBuilder {
 
         // Filter null values
         args = args.filter(arg => {
-            return arg != null
+            if(arg == null) return false
+            if(typeof arg !== 'string') return true
+            // Minecraft 26.1 manifest adds --sun-misc-unsafe-memory-access=allow for Java 22+,
+            // but older Java versions reject it. Filter it out for compatibility.
+            if(arg.startsWith('--sun-misc-')) return false
+            return true
         })
 
         return args
@@ -644,24 +675,6 @@ class ProcessBuilder {
     }
 
     /**
-     * Ensure that the classpath entries all point to jar files.
-     *
-     * @param {Array.<String>} list Array of classpath entries.
-     */
-    _processClassPathList(list) {
-
-        const ext = '.jar'
-        const extLen = ext.length
-        for(let i=0; i<list.length; i++) {
-            const extIndex = list[i].indexOf(ext)
-            if(extIndex > -1 && extIndex  !== list[i].length - extLen) {
-                list[i] = list[i].substring(0, extIndex + extLen)
-            }
-        }
-
-    }
-
-    /**
      * Resolve the full classpath argument list for this process. This method will resolve all Mojang-declared
      * libraries as well as the libraries declared by the server. Since mods are permitted to declare libraries,
      * this method requires all enabled mods as an input
@@ -696,8 +709,6 @@ class ProcessBuilder {
         // Ex. 1.7.10 forge overrides mojang's guava with newer version.
         const finalLibs = {...mojangLibs, ...servLibs}
         cpArgs = cpArgs.concat(Object.values(finalLibs))
-
-        this._processClassPathList(cpArgs)
 
         return cpArgs
     }
@@ -841,7 +852,8 @@ class ProcessBuilder {
                 libs[mdl.getVersionlessMavenIdentifier()] = mdl.getPath()
                 if(mdl.subModules.length > 0){
                     const res = this._resolveModuleLibraries(mdl)
-                    if(res.length > 0){
+                    const keys = Object.keys(res)
+                    if(keys.length > 0){
                         libs = {...libs, ...res}
                     }
                 }
@@ -850,9 +862,10 @@ class ProcessBuilder {
 
         //Check for any libraries in our mod list.
         for(let i=0; i<mods.length; i++){
-            if(mods.sub_modules != null){
+            if(mods[i].subModules != null && mods[i].subModules.length > 0){
                 const res = this._resolveModuleLibraries(mods[i])
-                if(res.length > 0){
+                const keys = Object.keys(res)
+                if(keys.length > 0){
                     libs = {...libs, ...res}
                 }
             }
@@ -865,28 +878,19 @@ class ProcessBuilder {
      * Recursively resolve the path of each library required by this module.
      *
      * @param {Object} mdl A module object from the server distro index.
-     * @returns {Array.<string>} An array containing the paths of each library this module requires.
+     * @returns {Object.<string, string>} An object mapping versionless maven identifiers to library paths.
      */
     _resolveModuleLibraries(mdl){
         if(!mdl.subModules.length > 0){
-            return []
+            return {}
         }
-        let libs = []
+        let libs = {}
         for(let sm of mdl.subModules){
-            if(sm.rawModule.type === Type.Library){
-
-                if(sm.rawModule.classpath ?? true) {
-                    libs.push(sm.getPath())
-                }
+            if(sm.rawModule.type === Type.Library && (sm.rawModule.classpath ?? true)) {
+                libs[sm.getVersionlessMavenIdentifier()] = sm.getPath()
             }
-            // If this module has submodules, we need to resolve the libraries for those.
-            // To avoid unnecessary recursive calls, base case is checked here.
-            if(mdl.subModules.length > 0){
-                const res = this._resolveModuleLibraries(sm)
-                if(res.length > 0){
-                    libs = libs.concat(res)
-                }
-            }
+            const res = this._resolveModuleLibraries(sm)
+            libs = {...libs, ...res}
         }
         return libs
     }

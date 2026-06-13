@@ -26,11 +26,6 @@ body, button {
     color: white;
 }
 
-/*body {
-    background: url('./../images/backgrounds/0.jpg') no-repeat center center fixed;
-    background-size: cover;
-}*/
-
 /*******************************************************************************
  *                                                                             *
  * Frame Styles (frame.ejs)                                                    *
@@ -694,7 +689,6 @@ body, button {
     z-index: 9000;
     position: absolute;
     filter: blur(8px) contrast(0.9) brightness(1.0);
-    background: url('./../images/backgrounds/0.jpg') no-repeat center center fixed;
     transform: scale(1.2);
     background-size: cover;
 }
@@ -833,6 +827,7 @@ body, button {
     column-gap: 5px;
     color: rgba(255, 255, 255, 1);
     text-decoration: none;
+    width: 100%;
 }
 .loginOptionButton:hover,
 .loginOptionButton:focus {
@@ -946,7 +941,6 @@ body, button {
 
 /* Settings navigational divider. */
 .settingsNavDivider {
-    width: 75%;
     height: 1px;
     background: rgba(126, 126, 126, 0.57);
     margin-left: auto;
@@ -983,6 +977,7 @@ body, button {
     height: 100%;
     width: 75%;
     box-sizing: border-box;
+    padding-right: 15px;
 }
 
 /* Settings tab shared styles. */
@@ -1029,7 +1024,6 @@ body, button {
 /* Selected server content container */
 .settingsSelServContainer {
     background: rgba(0, 0, 0, 0.25);
-    width: 75%;
     border-radius: 3px;
     display: flex;
     justify-content: space-between;
@@ -1111,7 +1105,6 @@ body, button {
     align-items: center;
     justify-content: space-between;
     padding: 20px 0px;
-    width: 75%;
     border-bottom: 1px solid rgba(255, 255, 255, 0.50);
 }
 .settingsFieldLeft {
@@ -1216,7 +1209,6 @@ input:checked + .toggleSwitchSlider:before {
     border-bottom: 1px solid rgba(255, 255, 255, 0.50);
     margin-bottom: 20px;
     margin-top: 20px;
-    width: 75%;
 }
 
 /* File selector title. */
@@ -1292,7 +1284,6 @@ input:checked + .toggleSwitchSlider:before {
 
 .settingsAuthAccountTypeContainer {
     display: flex;
-    width: 75%;
     flex-direction: column;
 }
 
@@ -1432,7 +1423,6 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Account logout button shared styles. */
 .settingsAuthAccountLogOut {
-    opacity: 0;
     border: 1px solid rgb(241, 55, 55);
     color: rgb(241, 55, 55);
     background: none;
@@ -1468,7 +1458,6 @@ input:checked + .toggleSwitchSlider:before {
     flex-direction: column;
     padding-bottom: 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.50);
-    width: 75%;
 }
 #settingsGameResolutionContent {
     display: flex;
@@ -1482,17 +1471,11 @@ input:checked + .toggleSwitchSlider:before {
 #settingsGameWidth,
 #settingsGameHeight {
     padding: 7.5px 5px;
-    width: 75px;
 }
 
 /* * *
 * Settings View (Mods Tab)
 * * */
-
-/* Main content container for the mod elements. */
-#settingsModsContainer {
-    width: 75%;
-}
 
 /* Mod sub-container header text. */
 .settingsModsHeader {
@@ -1789,7 +1772,6 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Main container for memory management. */
 #settingsMemoryContainer {
-    width: 75%;
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid rgba(255, 255, 255, 0.50);
@@ -1880,11 +1862,6 @@ input:checked + .toggleSwitchSlider:before {
     font-size: 12px;
 }
 
-/* Main container for the JVM options setting. */
-#settingsJVMOptsContainer {
-    width: 75%;
-}
-
 /* JVM options title. */
 #settingsJVMOptsTitle {
     margin-bottom: 10px;
@@ -1936,7 +1913,6 @@ input:checked + .toggleSwitchSlider:before {
     background: rgba(0, 0, 0, 0.25);
     border: 1px solid rgba(126, 126, 126, 0.57);
     border-radius: 3px;
-    width: 75%;
     margin-bottom: 20px;
 }
 
@@ -2256,7 +2232,7 @@ input:checked + .toggleSwitchSlider:before {
     position: relative;
     transition: top 2s ease;
     top: 0px;
-    height: 77%;
+    height: 75%;
     display: flex;
 }
 #landingContainer > #upper > #left {
@@ -2278,7 +2254,7 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Lower content container. */
 #landingContainer > #lower {
-    height: 23%;
+    height: 25%;
     display: flex;
     background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
 }
@@ -2287,7 +2263,7 @@ input:checked + .toggleSwitchSlider:before {
     transition: top 2s ease;
     top: 0px;
     height: 100%;
-    width: 33%;
+    width: 15%;
     display: inline-flex;
     justify-content: center;
 }
@@ -2303,7 +2279,7 @@ input:checked + .toggleSwitchSlider:before {
     transition: top 2s ease;
     top: 0px;
     height: 100%;
-    width: 34%;
+    width: 70%;
     display: inline-flex;
     justify-content: center;
 }
@@ -2311,14 +2287,14 @@ input:checked + .toggleSwitchSlider:before {
     position: relative;
     z-index: 500;
     transition: top 2s ease;
-    top: 10px;
+    text-align: center;
 }
 #landingContainer > #lower > #right {
     position: relative;
     transition: top 2s ease;
     top: 0px;
     height: 100%;
-    width: 33%;
+    width: 15%;
     display: inline-flex;
 }
 
@@ -2655,17 +2631,10 @@ input:checked + .toggleSwitchSlider:before {
 #image_seal {
     height: 70px;
     width: auto;
+    display: block;
+    margin: 0 auto;
     position: relative;
     box-sizing: border-box;
-}
-
-/* Logo container styles. */
-#image_seal_container {
-    position: relative;
-    height: 70px;
-    width: 70px;
-    border-radius: 50%;
-    margin-top: 50px;
 }
 
 /* Logo container styles w/ update. */
@@ -2695,17 +2664,16 @@ input:checked + .toggleSwitchSlider:before {
     cursor: pointer;
     visibility: hidden;
     opacity: 0;
-    width: 100px;
     height: 15px;
     background-color: rgb(0, 0, 0);
     color: #fff;
     text-align: center;
     border-radius: 4px;
-    padding: 2px;
+    padding: 5px 2px;
     position: absolute;
     z-index: 1;
-    top: 115%;
-    left: -17.5px;
+    top: 105%;
+    left: 1px;
     font-family: "Open Sans", sans-serif;
     font-size: 12px;
     transition: visibility 0s linear 0.25s, opacity 0.25s ease;
@@ -2757,7 +2725,6 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Right hand user content container. */
 #user_content {
-    display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
@@ -2766,6 +2733,7 @@ input:checked + .toggleSwitchSlider:before {
 
 /* User profile avatar container. */
 #avatarContainer {
+    margin: 0 auto;
     border-radius: 50%;
     border: 2px solid #cad7e1;
     box-sizing: border-box;
@@ -2809,14 +2777,14 @@ input:checked + .toggleSwitchSlider:before {
 
 /* User profile name text. */
 #user_text {
+    margin-top: 10px;
     font-size: 12px;
     min-width: 135px;
     font-weight: 900;
     letter-spacing: 1px;
     text-shadow: 0px 0px 20px black;
-    position: absolute;
-    right: 95px;
-    text-align: right;
+    display: block;
+    text-align: center;
     -webkit-user-select: initial;
 }
 
@@ -2825,7 +2793,7 @@ input:checked + .toggleSwitchSlider:before {
     position: relative;
     display: flex;
     flex-direction: column;
-    margin-top: 25px;
+    margin: 25px auto 0;
     height: calc(100% - 95px);
     width: 70px;
     align-items: center;
@@ -2834,7 +2802,14 @@ input:checked + .toggleSwitchSlider:before {
 /* Social Media Icon division containers. */
 #internalMedia, #externalMedia {
     display: flex;
+}
+
+#internalMedia {
     flex-direction: column;
+}
+
+#externalMedia {
+    flex-direction: row;
 }
 
 /* Container object which wraps an icon to ensure fluid transitions. */
@@ -2848,7 +2823,7 @@ input:checked + .toggleSwitchSlider:before {
 /* Divider bar between the external and internal icons. */
 .mediaDivider {
     height: 1px;
-    width: 14px;
+    width: 80%;
     background: rgb(255, 255, 255);
     margin: 10px 0px;
 }
@@ -2949,8 +2924,8 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Style for a general label on the bottom of the landing view. */
 .bot_label {
-    font-size: 9px;
-    letter-spacing: 1px;
+    font-size: 10px;
+    letter-spacing: .075em;
     font-weight: bold;
     text-shadow: 0px 0px 0px #bebcbb;
 }
@@ -2968,16 +2943,10 @@ input:checked + .toggleSwitchSlider:before {
 * Landing View (Bottom Styles) | Left Content
 * * */
 
-/* Maintains maximum width on the status bar. */
-#server_status_wrapper {
-    display: inline-flex;
-    width: 75px;
-}
-
 /* Span which displays the player count of the selected server. */
 #player_count {
     color: #949494;
-    font-size: 8px;
+    font-size: 9px;
     font-weight: 900;
     text-shadow: 0px 0px 20px #949494;
     margin-left: 10px;
@@ -3070,6 +3039,7 @@ input:checked + .toggleSwitchSlider:before {
     padding: 0px;
     transition: 0.25s ease;
     outline: none;
+    margin-top: 10px;
 }
 #launch_button:hover,
 #launch_button:focus {
@@ -3092,11 +3062,6 @@ input:checked + .toggleSwitchSlider:before {
     display: none;
 }
 
-/* Left side of launch details container, displays percentage and a divider. */
-#launch_details_left {
-    display: flex;
-}
-
 /* Span which displays percentage complete. */
 #launch_progress_label {
     font-weight: 900;
@@ -3108,26 +3073,19 @@ input:checked + .toggleSwitchSlider:before {
     text-align: right;
 }
 
-/* Right side of launch details container, displays progress bar and details. */
-#launch_details_right {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
 /* Button which opens the server selection view. */
 #server_selection_button {
     background: none;
     border: none;
     outline: none;
     cursor: pointer;
-    line-height: 24px;
+    line-height: 20px;
     padding: 0px;
     transition: 0.25s ease;
 }
 #server_selection_button:hover,
 #server_selection_button:focus {
-    text-shadow: 0px 0px 20px #fff, 0px 0px 20px #fff, 0px 0px 20px #fff;
+    text-shadow: 0px 0px 10px #fff, 0px 0px 30px #fff, 0px 0px 40px #fff;
 }
 #server_selection_button:active {
     color: #c7c7c7;
@@ -3136,8 +3094,8 @@ input:checked + .toggleSwitchSlider:before {
 
 /* Progress bar styles. */
 #launch_progress[value] {
-    height: 3px;
-    width: 265px;
+    height: 5px;
+    width: 220px;
     -webkit-appearance: none;
 }
 #launch_progress[value]::-webkit-progress-bar {
@@ -3153,6 +3111,7 @@ input:checked + .toggleSwitchSlider:before {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    display: block;
 }
 
 /*******************************************************************************
@@ -3623,4 +3582,20 @@ input:checked + .toggleSwitchSlider:before {
 /* Class which is applied when the spinner image is spinning. */
 .rotating {
     animation: rotating 10s linear infinite;
+}
+
+.content-center {
+    margin: 0 auto;
+}
+
+#launch_content {
+    text-align: center;
+}
+
+#launch_details {
+    text-align: center;
+}
+
+#launch_progress {
+    margin-top: 5px;
 }
