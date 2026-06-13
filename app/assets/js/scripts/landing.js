@@ -357,9 +357,16 @@ async function downloadJava(effectiveJavaOptions, launchAfter = true) {
     clearInterval(extractListener)
     setLaunchDetails(Lang.queryJS('landing.downloadJava.javaInstalled'))
 
-    // TODO Callback hell
-    // Refactor the launch functions
-    asyncSystemScan(effectiveJavaOptions, launchAfter)
+    // Update settings UI with the new executable path (fire-and-forget).
+    // Do NOT call asyncSystemScan here: it runs java.exe to detect the JVM,
+    // which can fail with EACCES on Windows while security software is
+    // scanning the freshly extracted binaries, causing an install loop.
+    settingsJavaExecVal.value = newJavaExec
+    populateJavaExecDetails(newJavaExec)
+
+    if(launchAfter){
+        await dlAsync()
+    }
 
 }
 

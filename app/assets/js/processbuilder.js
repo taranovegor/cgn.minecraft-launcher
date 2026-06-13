@@ -3,7 +3,22 @@ const child_process         = require('child_process')
 const crypto                = require('crypto')
 const fs                    = require('fs-extra')
 const { LoggerUtil }        = require('helios-core')
-const { getMojangOS, isLibraryCompatible, mcVersionAtLeast }  = require('helios-core/common')
+const { getMojangOS, isLibraryCompatible }  = require('helios-core/common')
+
+// helios-core's mcVersionAtLeast incorrectly compares versions where the
+// major component exceeds the desired major (e.g. 26.1.2 vs 1.13 → false).
+// This local override short-circuits as soon as a higher major is detected.
+function mcVersionAtLeast(desired, actual) {
+    const des = desired.split('.')
+    const act = actual.split('.')
+    for (let i = 0; i < des.length; i++) {
+        const d = parseInt(des[i])
+        const a = parseInt(act[i] ?? 0)
+        if (a > d) return true
+        if (a < d) return false
+    }
+    return true
+}
 const { Type }              = require('helios-distribution-types')
 const os                    = require('os')
 const path                  = require('path')
