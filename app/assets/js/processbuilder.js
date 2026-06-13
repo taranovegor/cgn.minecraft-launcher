@@ -560,6 +560,7 @@ class ProcessBuilder {
         // Filter null values
         args = args.filter(arg => {
             if(arg == null) return false
+            if(typeof arg !== 'string') return true
             // Minecraft 26.1 manifest adds --sun-misc-unsafe-memory-access=allow for Java 22+,
             // but older Java versions reject it. Filter it out for compatibility.
             if(arg.startsWith('--sun-misc-')) return false
