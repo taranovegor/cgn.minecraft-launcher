@@ -1,6 +1,7 @@
 appId: 'cgn.mcl'
 productName: 'cgn-launcher-setup'
 artifactName: '${productName} ${version}.${ext}'
+executableName: 'cgnml'
 
 copyright: 'Copyright © 2025 CraftGame.net'
 
@@ -44,8 +45,6 @@ linux:
     description: 'Launcher to play on CraftGame.net'
     category: 'Game'
     mimeTypes: [x-scheme-handler/cgnml]
-    desktop:
-        exec: cgnml %u
 
 directories:
     buildResources: 'build'
