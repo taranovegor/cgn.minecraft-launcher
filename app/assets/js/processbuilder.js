@@ -559,7 +559,11 @@ class ProcessBuilder {
 
         // Filter null values
         args = args.filter(arg => {
-            return arg != null
+            if(arg == null) return false
+            // Minecraft 26.1 manifest adds --sun-misc-unsafe-memory-access=allow for Java 22+,
+            // but older Java versions reject it. Filter it out for compatibility.
+            if(arg.startsWith('--sun-misc-')) return false
+            return true
         })
 
         return args
@@ -832,7 +836,8 @@ class ProcessBuilder {
                 libs[mdl.getVersionlessMavenIdentifier()] = mdl.getPath()
                 if(mdl.subModules.length > 0){
                     const res = this._resolveModuleLibraries(mdl)
-                    if(res.length > 0){
+                    const keys = Object.keys(res)
+                    if(keys.length > 0){
                         libs = {...libs, ...res}
                     }
                 }
@@ -841,9 +846,10 @@ class ProcessBuilder {
 
         //Check for any libraries in our mod list.
         for(let i=0; i<mods.length; i++){
-            if(mods.sub_modules != null){
+            if(mods[i].subModules != null && mods[i].subModules.length > 0){
                 const res = this._resolveModuleLibraries(mods[i])
-                if(res.length > 0){
+                const keys = Object.keys(res)
+                if(keys.length > 0){
                     libs = {...libs, ...res}
                 }
             }
@@ -856,28 +862,19 @@ class ProcessBuilder {
      * Recursively resolve the path of each library required by this module.
      *
      * @param {Object} mdl A module object from the server distro index.
-     * @returns {Array.<string>} An array containing the paths of each library this module requires.
+     * @returns {Object.<string, string>} An object mapping versionless maven identifiers to library paths.
      */
     _resolveModuleLibraries(mdl){
         if(!mdl.subModules.length > 0){
-            return []
+            return {}
         }
-        let libs = []
+        let libs = {}
         for(let sm of mdl.subModules){
-            if(sm.rawModule.type === Type.Library){
-
-                if(sm.rawModule.classpath ?? true) {
-                    libs.push(sm.getPath())
-                }
+            if(sm.rawModule.type === Type.Library && (sm.rawModule.classpath ?? true)) {
+                libs[sm.getVersionlessMavenIdentifier()] = sm.getPath()
             }
-            // If this module has submodules, we need to resolve the libraries for those.
-            // To avoid unnecessary recursive calls, base case is checked here.
-            if(mdl.subModules.length > 0){
-                const res = this._resolveModuleLibraries(sm)
-                if(res.length > 0){
-                    libs = libs.concat(res)
-                }
-            }
+            const res = this._resolveModuleLibraries(sm)
+            libs = {...libs, ...res}
         }
         return libs
     }
