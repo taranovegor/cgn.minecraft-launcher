@@ -26,11 +26,6 @@ body, button {
     color: white;
 }
 
-/*body {
-    background: url('./../images/backgrounds/0.jpg') no-repeat center center fixed;
-    background-size: cover;
-}*/
-
 /*******************************************************************************
  *                                                                             *
  * Frame Styles (frame.ejs)                                                    *
@@ -694,7 +689,6 @@ body, button {
     z-index: 9000;
     position: absolute;
     filter: blur(8px) contrast(0.9) brightness(1.0);
-    background: url('./../images/backgrounds/0.jpg') no-repeat center center fixed;
     transform: scale(1.2);
     background-size: cover;
 }

@@ -74,7 +74,7 @@ async function showMainUI(data){
     refreshServerStatus()
     setTimeout(() => {
         document.getElementById('frameBar').style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
-        document.body.style.backgroundImage = `url('assets/images/backgrounds/${document.body.getAttribute('bkid')}.png')`
+        document.body.style.backgroundImage = `url('https://mc.craftgame.net/background.png')`
         $('#main').show()
 
         const isLoggedIn = undefined !== ConfigManager.getAccount()
