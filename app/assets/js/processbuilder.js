@@ -410,6 +410,7 @@ class ProcessBuilder {
     _constructJVMArguments113(mods, tempNativePath){
 
         const argDiscovery = /\${*(.*)}/
+        let nativesExtractPath = tempNativePath
 
         // JVM Arguments First
         let args = this.vanillaManifest.arguments.jvm
@@ -545,9 +546,13 @@ class ProcessBuilder {
                         case 'resolution_height':
                             val = ConfigManager.getGameHeight()
                             break
-                        case 'natives_directory':
+                        case 'natives_directory': {
+                            const token = args[i].match(argDiscovery)[0]
+                            const suffix = args[i].substring(args[i].indexOf(token) + token.length)
+                            nativesExtractPath = path.join(tempNativePath, suffix)
                             val = args[i].replace(argDiscovery, tempNativePath)
                             break
+                        }
                         case 'launcher_name':
                             val = args[i].replace(argDiscovery, 'CraftGame Launcher')
                             break
@@ -555,7 +560,7 @@ class ProcessBuilder {
                             val = args[i].replace(argDiscovery, this.launcherVersion)
                             break
                         case 'classpath':
-                            val = this.classpathArg(mods, tempNativePath).join(ProcessBuilder.getClasspathSeparator())
+                            val = this.classpathArg(mods, tempNativePath, nativesExtractPath).join(ProcessBuilder.getClasspathSeparator())
                             break
                     }
                     if(val != null){
@@ -683,7 +688,7 @@ class ProcessBuilder {
      * @param {string} tempNativePath The path to store the native libraries.
      * @returns {Array.<string>} An array containing the paths of each library required by this process.
      */
-    classpathArg(mods, tempNativePath){
+    classpathArg(mods, tempNativePath, nativesExtractPath = tempNativePath){
         let cpArgs = []
 
         if(!mcVersionAtLeast('1.17', this.server.rawServer.minecraftVersion) || this.usingFabricLoader) {
@@ -699,7 +704,7 @@ class ProcessBuilder {
         }
 
         // Resolve the Mojang declared libraries.
-        const mojangLibs = this._resolveMojangLibraries(tempNativePath)
+        const mojangLibs = this._resolveMojangLibraries(nativesExtractPath)
 
         // Resolve the server declared libraries.
         const servLibs = this._resolveServerLibraries(mods)
