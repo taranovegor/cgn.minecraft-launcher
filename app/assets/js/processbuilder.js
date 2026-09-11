@@ -547,9 +547,11 @@ class ProcessBuilder {
                             val = ConfigManager.getGameHeight()
                             break
                         case 'natives_directory': {
-                            const token = args[i].match(argDiscovery)[0]
-                            const suffix = args[i].substring(args[i].indexOf(token) + token.length)
-                            nativesExtractPath = path.join(tempNativePath, suffix)
+                            if(args[i].startsWith('-Djava.library.path=')){
+                                const token = args[i].match(argDiscovery)[0]
+                                const suffix = args[i].substring(args[i].indexOf(token) + token.length)
+                                nativesExtractPath = path.join(tempNativePath, suffix)
+                            }
                             val = args[i].replace(argDiscovery, tempNativePath)
                             break
                         }
