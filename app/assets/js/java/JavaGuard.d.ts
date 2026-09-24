@@ -1,5 +1,4 @@
 import { JdkDistribution } from '../distribution-types';
-import { LauncherJson } from '../model/mojang/LauncherJson';
 import { Asset } from '../dl';
 export interface JavaVersion {
     major: number;
@@ -336,19 +335,6 @@ export declare function javaExecFromRoot(rootDir: string): string;
  * @returns The root java path.
  */
 export declare function ensureJavaDirIsRoot(dir: string): string;
-/**
- * Check to see if the given path points to a Java executable.
- *
- * @param {string} pth The path to check against.
- * @returns {boolean} True if the path points to a Java executable, otherwise false.
- */
-export declare function isJavaExecPath(pth: string): boolean;
-/**
- * Load Mojang's launcher.json file.
- *
- * @returns {Promise.<Object>} Promise which resolves to Mojang's launcher.json object.
- */
-export declare function loadMojangLauncherData(): Promise<LauncherJson | null>;
 /**
  * Parses a full Java Runtime version string and resolves
  * the version information. Dynamically detects the formatting

@@ -10,10 +10,3 @@ export declare enum Type {
     File = "File",
     VersionManifest = "VersionManifest"
 }
-export interface TypeMetadata {
-    id: string;
-    defaultExtension?: string;
-}
-export declare const TypeMetadata: {
-    [property: string]: TypeMetadata;
-};

@@ -345,40 +345,6 @@ function ensureJavaDirIsRoot(dir) {
 }
 
 /**
- * Check to see if the given path points to a Java executable.
- *
- * @param {string} pth The path to check against.
- * @returns {boolean} True if the path points to a Java executable, otherwise false.
- */
-function isJavaExecPath(pth) {
-    switch (process.platform) {
-        case Platform.WIN32:
-            return pth.endsWith(join('bin', 'javaw.exe'))
-        case Platform.DARWIN:
-        case Platform.LINUX:
-            return pth.endsWith(join('bin', 'java'))
-        default:
-            return false
-    }
-}
-
-// TODO Move this
-/**
- * Load Mojang's launcher.json file.
- *
- * @returns {Promise.<Object>} Promise which resolves to Mojang's launcher.json object.
- */
-async function loadMojangLauncherData() {
-    try {
-        const res = await got.get('https://launchermeta.mojang.com/mc/launcher.json', { responseType: 'json' })
-        return res.body
-    } catch (err) {
-        log.error('Failed to retrieve Mojang\'s launcher.json file.')
-        return null
-    }
-}
-
-/**
  * Parses a full Java Runtime version string and resolves
  * the version information. Dynamically detects the formatting
  * to use.
@@ -704,8 +670,6 @@ module.exports = {
     extractJdk,
     javaExecFromRoot,
     ensureJavaDirIsRoot,
-    isJavaExecPath,
-    loadMojangLauncherData,
     parseJavaRuntimeVersion,
     parseJavaRuntimeVersionLegacy,
     parseJavaRuntimeVersionSemver,
