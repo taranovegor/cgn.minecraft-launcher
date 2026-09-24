@@ -5,15 +5,9 @@ usernameEditButton = "Редактировать"
 settingsTooltip = "Настройки"
 serverStatus = "Сервер"
 serverStatusPlaceholder = "Оффлайн"
-newsButton = "Новости"
 launchButton = "Играть"
 launchButtonPlaceholder = "Сервер не выбран"
 launchDetails = "Пожалуйста, подождите.."
-newsNavigationStatus = "{currentPage} из {totalPages}"
-newsErrorLoadSpan = "Загрузка новостей.."
-newsErrorFailedSpan = "Не удалось загрузить новости"
-newsErrorRetryButton = "Попробуйте позже"
-newsErrorNoneSpan = "Новостей нет"
 
 [ejs.login]
 loginCancelText = "Отменить"
@@ -199,9 +193,6 @@ launchingGame = "Инициализация..."
 launchWrapperNotDownloaded = "Основной файл, LaunchWrapper, не удалось правильно загрузить. В результате игра не может быть запущена.<br><br>Чтобы исправить эту проблему, временно отключите антивирусное программное обеспечение и повторите попытку запуска игры.<br><br>Если у вас есть время, пожалуйста, <a href=\"https://github.com/dscalzi/HeliosLauncher/issues\">сообщите о проблеме</a> и дайте нам знать, каким антивирусным программным обеспечением вы пользуетесь. Мы свяжемся с ними и попробуем уладить ситуацию."
 doneEnjoyServer = "Запуск клиента..."
 checkConsoleForDetails = "Пожалуйста, проверьте консоль (CTRL + Shift + i) для получения дополнительной информации."
-
-[js.landing.news]
-checking = "Проверка новостей"
 
 [js.landing.discord]
 loading = "Загрузка игры.."

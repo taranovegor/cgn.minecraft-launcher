@@ -20,11 +20,6 @@ module.exports = {
             dataDirectory: dataPath
         }
     },
-    newsCache: {
-        date: null,
-        content: null,
-        dismissed: false
-    },
     clientToken: null,
     selectedServer: null, // Resolved
     selectedAccount: null,
