@@ -5,6 +5,7 @@ const fs                    = require('fs-extra')
 const { LoggerUtil }        = require('./util/LoggerUtil')
 const { getMojangOS, isLibraryCompatible, mcVersionAtLeast }  = require('./common')
 const { Type }              = require('./distribution-types')
+const { AUTHLIB_INJECTOR }  = require('./endpoints')
 const os                    = require('os')
 const path                  = require('path')
 
@@ -429,16 +430,16 @@ class ProcessBuilder {
                 return false
             }
 
-            args.push('-javaagent:'+e+'=https://ygg.mc.craftgame.net/authlib-injector')
+            args.push('-javaagent:'+e+'='+AUTHLIB_INJECTOR)
 
             return true
         })
 
         args.push('-Dminecraft.api.env=custom')
-        args.push('-Dminecraft.api.auth.host=https://ygg.mc.craftgame.net/authlib-injector/authserver')
-        args.push('-Dminecraft.api.account.host=https://ygg.mc.craftgame.net/authlib-injector/api')
-        args.push('-Dminecraft.api.session.host=https://ygg.mc.craftgame.net/authlib-injector/sessionserver')
-        args.push('-Dminecraft.api.services.host=https://ygg.mc.craftgame.net/authlib-injector/minecraftservices')
+        args.push('-Dminecraft.api.auth.host='+AUTHLIB_INJECTOR+'/authserver')
+        args.push('-Dminecraft.api.account.host='+AUTHLIB_INJECTOR+'/api')
+        args.push('-Dminecraft.api.session.host='+AUTHLIB_INJECTOR+'/sessionserver')
+        args.push('-Dminecraft.api.services.host='+AUTHLIB_INJECTOR+'/minecraftservices')
 
         // Main Java Class
         args.push(this.modManifest.mainClass)

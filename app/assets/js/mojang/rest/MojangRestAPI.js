@@ -2,6 +2,7 @@ const { LoggerUtil } = require('../../util/LoggerUtil')
 const got = require('got')
 const { decipherErrorCode, isInternalError, MojangErrorCode } = require('./MojangResponse')
 const { handleGotError, RestResponseStatus } = require('../../common/rest/RestResponse')
+const { AUTH } = require('../../endpoints')
 
 const MojangStatusColor = {
     RED: 'red',
@@ -15,7 +16,7 @@ class MojangRestAPI {
     static logger = LoggerUtil.getLogger('Mojang')
 
     static TIMEOUT = 2500
-    static AUTH_ENDPOINT = 'https://ygg.mc.craftgame.net/auth'
+    static AUTH_ENDPOINT = AUTH
     static STATUS_ENDPOINT = 'https://raw.githubusercontent.com/AventiumSoftworks/helios-status-page/master/history/summary.json'
 
     static authClient = got.extend({

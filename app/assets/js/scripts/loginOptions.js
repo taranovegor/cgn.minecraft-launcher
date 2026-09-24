@@ -2,6 +2,8 @@ const loginOptionsCancelContainer = document.getElementById('loginOptionCancelCo
 const loginOptionWebsite = document.getElementById('loginOptionWebsite')
 const loginOptionsCancelButton = document.getElementById('loginOptionCancelButton')
 
+const { WEBSITE_AUTH } = require('./assets/js/endpoints')
+
 let loginOptionsCancellable = false
 
 let loginOptionsViewOnLoginSuccess
@@ -19,7 +21,7 @@ function loginOptionsCancelEnabled(val){
 
 loginOptionWebsite.onclick = (e) => {
     switchView(getCurrentView(), VIEWS.waiting, 500, 500, () => {
-        shell.openExternal('https://craftgame.net/launcher/auth')
+        shell.openExternal(WEBSITE_AUTH)
     })
 }
 

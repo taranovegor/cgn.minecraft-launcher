@@ -11,6 +11,7 @@ const semver                            = require('semver')
 const { pathToFileURL }                 = require('url')
 const { SHELL_OPCODE, CGN_OPCODE } = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
+const { BACKGROUND }                    = require('./app/assets/js/endpoints')
 const deeplink = require('electron-app-universal-protocol-client').default
 
 if (!app.requestSingleInstanceLock()) {
@@ -139,7 +140,8 @@ function createWindow() {
     remoteMain.enable(win.webContents)
 
     const data = {
-        lang: (str, placeHolders) => LangLoader.queryEJS(str, placeHolders)
+        lang: (str, placeHolders) => LangLoader.queryEJS(str, placeHolders),
+        backgroundUrl: BACKGROUND
     }
     Object.entries(data).forEach(([key, val]) => ejse.data(key, val))
 

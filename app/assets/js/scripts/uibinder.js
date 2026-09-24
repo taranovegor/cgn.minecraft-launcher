@@ -9,6 +9,7 @@ const { Type }      = require('./assets/js/distribution-types')
 const AuthManager   = require('./assets/js/authmanager')
 const ConfigManager = require('./assets/js/configmanager')
 const { DistroAPI } = require('./assets/js/distromanager')
+const { BACKGROUND } = require('./assets/js/endpoints')
 
 let rscShouldLoad = false
 let fatalStartupError = false
@@ -74,7 +75,7 @@ async function showMainUI(data){
     refreshServerStatus()
     setTimeout(() => {
         document.getElementById('frameBar').style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
-        document.body.style.backgroundImage = `url('https://mc.craftgame.net/background.png')`
+        document.body.style.backgroundImage = `url('${BACKGROUND}')`
         $('#main').show()
 
         const isLoggedIn = undefined !== ConfigManager.getAccount()
