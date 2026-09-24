@@ -10,17 +10,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
+  draft:
+    runs-on: ubuntu-latest
 
     permissions:
       contents: write
       actions: write
 
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    outputs:
+      match: ${{ steps.verify.outputs.match }}
 
     steps:
       - name: Check out Git repository
@@ -48,19 +46,49 @@ jobs:
           fi
           echo "match=true" >> "$GITHUB_OUTPUT"
 
-      - name: Set up Python
+      - name: Create draft release
         if: steps.verify.outputs.match == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          if ! gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release create "$GITHUB_REF_NAME" --draft --title "$GITHUB_REF_NAME" --generate-notes
+          fi
+
+  build:
+    needs: draft
+    if: needs.draft.outputs.match == 'true'
+
+    runs-on: ${{ matrix.os }}
+
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: 3.x
 
       - name: Install Dependencies
-        if: steps.verify.outputs.match == 'true'
         run: npm ci
         shell: bash
 
       - name: Build and publish
-        if: steps.verify.outputs.match == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run dist -- --publish always
