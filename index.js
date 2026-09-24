@@ -13,7 +13,6 @@ const { pathToFileURL }                 = require('url')
 const { SHELL_OPCODE, CGN_OPCODE } = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
 const { BACKGROUND }                    = require('./app/assets/js/endpoints')
-const deeplink = require('electron-app-universal-protocol-client').default
 
 // The app was previously named "Minecraft" (package.json productName), so the
 // user data directory (config.json, accounts) lives in %APPDATA%\Minecraft.
@@ -35,6 +34,46 @@ try {
 if (!app.requestSingleInstanceLock()) {
     return app.quit()
 }
+
+// Deep link handling ('cgnml://...') built on the standard Electron APIs.
+const DEEP_LINK_PROTOCOL = 'cgnml'
+
+if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient(DEEP_LINK_PROTOCOL, process.execPath, [path.resolve(process.argv[1])])
+    }
+} else {
+    app.setAsDefaultProtocolClient(DEEP_LINK_PROTOCOL)
+}
+
+let pendingDeepLink = null
+
+function handleDeepLink(url) {
+    if (url == null) {
+        return
+    }
+    if (win == null) {
+        pendingDeepLink = url
+        return
+    }
+    if (win.isMinimized()) {
+        win.restore()
+    }
+    win.focus()
+    win.webContents.send(CGN_OPCODE.ON_LOGIN, url)
+}
+
+app.on('second-instance', (event, argv) => {
+    const url = argv.find(arg => typeof arg === 'string' && arg.startsWith(`${DEEP_LINK_PROTOCOL}://`))
+    if (url != null) {
+        handleDeepLink(url)
+    }
+})
+
+app.on('open-url', (event, url) => {
+    event.preventDefault()
+    handleDeepLink(url)
+})
 
 // Setup Lang
 LangLoader.setupLanguage()
@@ -173,19 +212,11 @@ function createWindow() {
         win = null
     })
 
-    deeplink.on('request', async (requestUrl) => {
-        if (win.isMinimized()) {
-            win.restore()
-        }
-        win.focus()
-
-        win.webContents.send(CGN_OPCODE.ON_LOGIN, requestUrl)
-    })
-
-    deeplink.initialize({
-        protocol: 'cgnml',
-        mode: isDev ? 'development' : 'production',
-    })
+    if (pendingDeepLink != null) {
+        const url = pendingDeepLink
+        pendingDeepLink = null
+        win.webContents.once('did-finish-load', () => handleDeepLink(url))
+    }
 }
 
 function createMenu() {

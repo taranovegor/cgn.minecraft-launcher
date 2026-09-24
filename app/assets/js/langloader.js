@@ -1,12 +1,25 @@
 const fs = require('fs-extra')
 const path = require('path')
-const toml = require('toml')
-const merge = require('lodash.merge')
+const { parse } = require('smol-toml')
 
 let lang
 
+function deepMerge(target, source) {
+    for (const key of Object.keys(source)) {
+        const sourceValue = source[key]
+        const targetValue = target[key]
+        if (sourceValue != null && typeof sourceValue === 'object' && !Array.isArray(sourceValue)
+            && targetValue != null && typeof targetValue === 'object' && !Array.isArray(targetValue)) {
+            target[key] = deepMerge(targetValue, sourceValue)
+        } else {
+            target[key] = sourceValue
+        }
+    }
+    return target
+}
+
 exports.loadLanguage = function(id){
-    lang = merge(lang || {}, toml.parse(fs.readFileSync(path.join(__dirname, '..', 'lang', `${id}.toml`))) || {})
+    lang = deepMerge(lang || {}, parse(fs.readFileSync(path.join(__dirname, '..', 'lang', `${id}.toml`), 'utf8')) || {})
 }
 
 exports.query = function(id, placeHolders){

@@ -1,6 +1,6 @@
 const { exec } = require('child_process')
 const fs = require('fs-extra')
-const got = require('got')
+const { fetchJson, fetchText, fetchHead } = require('../http')
 const { Platform, Architecture, JdkDistribution } = require('../distribution-types')
 const { join, dirname } = require('path')
 const { promisify } = require('util')
@@ -204,7 +204,7 @@ async function latestAdoptium(major, dataDir) {
     const arch = process.arch === Architecture.ARM64 ? 'aarch64' : Architecture.X64
     const url = `https://api.adoptium.net/v3/assets/latest/${major}/hotspot?vendor=eclipse`
     try {
-        const res = await got.get(url, { responseType: 'json' })
+        const res = await fetchJson(url)
         if (res.body.length > 0) {
             const targetBinary = res.body.find(entry => {
                 return entry.version.major === major
@@ -259,8 +259,8 @@ async function latestCorretto(major, dataDir) {
     const url = `https://corretto.aws/downloads/latest/amazon-corretto-${major}-${arch}-${sanitizedOS}-jdk.${ext}`
     const md5url = `https://corretto.aws/downloads/latest_checksum/amazon-corretto-${major}-${arch}-${sanitizedOS}-jdk.${ext}`
     try {
-        const res = await got.head(url)
-        const checksum = await got.get(md5url)
+        const res = await fetchHead(url)
+        const checksum = await fetchText(md5url)
         if (res.statusCode === 200) {
             const name = url.substring(url.lastIndexOf('/') + 1)
             return {

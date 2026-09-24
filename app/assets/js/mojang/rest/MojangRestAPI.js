@@ -1,8 +1,19 @@
 const { LoggerUtil } = require('../../util/LoggerUtil')
-const got = require('got')
+const { fetchJson, HTTPError } = require('../../http')
 const { decipherErrorCode, isInternalError, MojangErrorCode } = require('./MojangResponse')
 const { handleGotError, RestResponseStatus } = require('../../common/rest/RestResponse')
 const { AUTH } = require('../../endpoints')
+
+function postJsonInit(json) {
+    return {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+            accept: 'application/json'
+        },
+        body: JSON.stringify(json)
+    }
+}
 
 const MojangStatusColor = {
     RED: 'red',
@@ -18,18 +29,6 @@ class MojangRestAPI {
     static TIMEOUT = 2500
     static AUTH_ENDPOINT = AUTH
     static STATUS_ENDPOINT = 'https://raw.githubusercontent.com/AventiumSoftworks/helios-status-page/master/history/summary.json'
-
-    static authClient = got.extend({
-        prefixUrl: MojangRestAPI.AUTH_ENDPOINT,
-        responseType: 'json',
-        retry: 0
-    })
-
-    static statusClient = got.extend({
-        url: MojangRestAPI.STATUS_ENDPOINT,
-        responseType: 'json',
-        retry: 0
-    })
 
     static MINECRAFT_AGENT = {
         name: 'Minecraft',
@@ -127,7 +126,7 @@ class MojangRestAPI {
      */
     static handleGotError(operation, error, dataProvider) {
         const response = handleGotError(operation, error, MojangRestAPI.logger, dataProvider)
-        if (error instanceof got.HTTPError) {
+        if (error instanceof HTTPError) {
             response.mojangErrorCode = decipherErrorCode(error.response.body)
         } else if (error.name === 'RequestError' && error.code === 'ENOTFOUND') {
             response.mojangErrorCode = MojangErrorCode.ERROR_UNREACHABLE
@@ -166,7 +165,7 @@ class MojangRestAPI {
      */
     static async status() {
         try {
-            const res = await MojangRestAPI.statusClient.get({})
+            const res = await fetchJson(MojangRestAPI.STATUS_ENDPOINT)
             MojangRestAPI.expectSpecificSuccess('Mojang Status', 200, res.statusCode)
             for (const status of res.body) {
                 for (const mojStatus of MojangRestAPI.statuses) {
@@ -212,7 +211,7 @@ class MojangRestAPI {
             if (clientToken != null) {
                 json.clientToken = clientToken
             }
-            const res = await MojangRestAPI.authClient.post('authenticate', { json, responseType: 'json' })
+            const res = await fetchJson(`${MojangRestAPI.AUTH_ENDPOINT}/authenticate`, postJsonInit(json))
             MojangRestAPI.expectSpecificSuccess('Mojang Authenticate', 200, res.statusCode)
             return {
                 data: res.body,
@@ -238,14 +237,14 @@ class MojangRestAPI {
                 accessToken,
                 clientToken
             }
-            const res = await MojangRestAPI.authClient.post('validate', { json })
+            const res = await fetchJson(`${MojangRestAPI.AUTH_ENDPOINT}/validate`, postJsonInit(json))
             MojangRestAPI.expectSpecificSuccess('Mojang Validate', 204, res.statusCode)
             return {
                 data: res.statusCode === 204,
                 responseStatus: RestResponseStatus.SUCCESS
             }
         } catch (err) {
-            if (err instanceof got.HTTPError && err.response.statusCode === 403) {
+            if (err instanceof HTTPError && err.response.statusCode === 403) {
                 return {
                     data: false,
                     responseStatus: RestResponseStatus.SUCCESS
@@ -270,7 +269,7 @@ class MojangRestAPI {
                 accessToken,
                 clientToken
             }
-            const res = await MojangRestAPI.authClient.post('invalidate', { json })
+            const res = await fetchJson(`${MojangRestAPI.AUTH_ENDPOINT}/invalidate`, postJsonInit(json))
             MojangRestAPI.expectSpecificSuccess('Mojang Invalidate', 204, res.statusCode)
             return {
                 data: undefined,
@@ -299,7 +298,7 @@ class MojangRestAPI {
                 clientToken,
                 requestUser
             }
-            const res = await MojangRestAPI.authClient.post('refresh', { json, responseType: 'json' })
+            const res = await fetchJson(`${MojangRestAPI.AUTH_ENDPOINT}/refresh`, postJsonInit(json))
             MojangRestAPI.expectSpecificSuccess('Mojang Refresh', 200, res.statusCode)
             return {
                 data: res.body,

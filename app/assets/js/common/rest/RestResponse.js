@@ -1,4 +1,4 @@
-const { HTTPError, TimeoutError, ParseError } = require('got')
+const { HTTPError, TimeoutError, ParseError } = require('../../http')
 
 /**
  * Rest Response status.

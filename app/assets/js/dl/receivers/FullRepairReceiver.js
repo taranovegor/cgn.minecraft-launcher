@@ -4,7 +4,7 @@ const { getExpectedDownloadSize, downloadQueue } = require('../DownloadEngine')
 const { MojangIndexProcessor } = require('../mojang/MojangIndexProcessor')
 const { LoggerUtil } = require('../../util/LoggerUtil')
 const { validateLocalFile } = require('../../common/util/FileUtils')
-const { RequestError, HTTPError, TimeoutError, ParseError, ReadError } = require('got')
+const { RequestError, HTTPError, TimeoutError, ParseError } = require('../../http')
 
 const log = LoggerUtil.getLogger('FullRepairReceiver')
 
@@ -27,27 +27,25 @@ class FullRepairReceiver {
 
     // Construct friendly error messages
     async parseError(error) {
-        if (error instanceof RequestError) {
-            if (error?.request?.requestUrl) {
-                log.debug(`Error during request to ${error.request.requestUrl}`)
-            }
-            if (error instanceof HTTPError) {
-                log.debug('Response Details:')
-                log.debug('Body:', error.response.body)
-                log.debug('Headers:', error.response.headers)
-                return `Error during request (HTTP Response ${error.response.statusCode})`
-            } else if (error.name === 'RequestError') {
-                return `Request received no response (${error.code}).`
-            } else if (error instanceof TimeoutError) {
-                return `Request timed out (${error.timings.phases.total}ms).`
-            } else if (error instanceof ParseError) {
-                return 'Request received unexepected body (Parse Error).'
-            } else if (error instanceof ReadError) {
-                return `Read Error (${error.code}): ${error.message}.`
-            } else {
-                // CacheError, MaxRedirectsError, UnsupportedProtocolError, CancelError
-                return 'Error during request.'
-            }
+        if (error == null) {
+            return undefined
+        }
+        if (error?.request?.requestUrl) {
+            log.debug(`Error during request to ${error.request.requestUrl}`)
+        }
+        if (error instanceof HTTPError) {
+            log.debug('Response Details:')
+            log.debug('Body:', error.response.body)
+            log.debug('Headers:', error.response.headers)
+            return `Error during request (HTTP Response ${error.response.statusCode})`
+        } else if (error instanceof TimeoutError) {
+            return `Request timed out (${error.timings.phases.total}ms).`
+        } else if (error instanceof ParseError) {
+            return 'Request received unexepected body (Parse Error).'
+        } else if (error instanceof RequestError) {
+            return `Request received no response (${error.code}).`
+        } else if (error?.code === 'ECONNRESET') {
+            return `Read Error (${error.code}): ${error.message}.`
         } else {
             return undefined
         }

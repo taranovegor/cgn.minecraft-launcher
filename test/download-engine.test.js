@@ -7,32 +7,44 @@ const os = require('os')
 const path = require('path')
 const { Readable } = require('stream')
 
-class FakeRequestError extends Error {}
-class FakeReadError extends FakeRequestError {}
-
 const state = { behaviors: [], calls: 0, sleeps: 0 }
 
-const fakeGot = {
-    RequestError: FakeRequestError,
-    ReadError: FakeReadError,
-    stream() {
-        state.calls++
-        const behavior = state.behaviors.shift()
-        const stream = new Readable({ read() {} })
-        setImmediate(() => {
-            if (!behavior || behavior.type === 'success') {
-                stream.push('hello')
-                stream.push(null)
-            } else {
-                stream.destroy(behavior.error)
-            }
-        })
-        return stream
+function makeResponse({ ok, status, body }) {
+    const headers = new Map([['content-length', '5']])
+    return {
+        ok,
+        status,
+        statusText: ok ? 'OK' : 'Error',
+        headers: {
+            get: (name) => headers.get(name) ?? null,
+            entries: () => headers.entries()
+        },
+        body,
+        text: async () => ''
     }
 }
 
-const gotPath = require.resolve('got')
-require.cache[gotPath] = { id: gotPath, filename: gotPath, loaded: true, exports: fakeGot, children: [], paths: [] }
+global.fetch = async () => {
+    state.calls++
+    const behavior = state.behaviors.shift() || { type: 'success' }
+    if (behavior.type === 'network') {
+        const error = new TypeError('fetch failed')
+        error.cause = { code: 'ECONNREFUSED' }
+        throw error
+    }
+    if (behavior.type === 'http') {
+        return makeResponse({ ok: false, status: behavior.status, body: Readable.toWeb(Readable.from([''])) })
+    }
+    if (behavior.type === 'stream-error') {
+        const stream = new Readable({ read() {} })
+        setImmediate(() => {
+            stream.push('part')
+            stream.destroy(behavior.error)
+        })
+        return makeResponse({ ok: true, status: 200, body: Readable.toWeb(stream) })
+    }
+    return makeResponse({ ok: true, status: 200, body: Readable.toWeb(Readable.from(['hello'])) })
+}
 
 const nodeUtilPath = require.resolve('../app/assets/js/util/NodeUtil')
 require.cache[nodeUtilPath] = {
@@ -45,10 +57,6 @@ require.cache[nodeUtilPath] = {
 }
 
 const { downloadFile, getExpectedDownloadSize } = require('../app/assets/js/dl')
-
-function retryable() { const e = new FakeRequestError('server did not respond'); e.name = 'RequestError'; return e }
-function nonRetryable() { return new Error('boom') }
-function readReset() { const e = new FakeReadError('read'); e.code = 'ECONNRESET'; return e }
 
 const tempDir = path.join(os.tmpdir(), 'cgn-launcher-dl-test')
 
@@ -82,30 +90,32 @@ test('successful download does not retry', async () => {
     assert.strictEqual(result.content, 'hello')
 })
 
-test('retryable failure is retried once then succeeds', async () => {
-    const result = await run([{ type: 'fail', error: retryable() }, { type: 'success' }])
+test('network failure is retried once then succeeds', async () => {
+    const result = await run([{ type: 'network' }, { type: 'success' }])
     assert.strictEqual(result.outcome, 'ok')
     assert.strictEqual(result.calls, 2)
     assert.strictEqual(result.sleeps, 1)
 })
 
-test('non-retryable failure throws immediately', async () => {
-    const result = await run([{ type: 'fail', error: nonRetryable() }])
-    assert.strictEqual(result.outcome, 'error:boom')
+test('HTTP error response is not retried', async () => {
+    const result = await run([{ type: 'http', status: 500 }])
+    assert.strictEqual(result.outcome, 'error:Response code 500 (Error)')
     assert.strictEqual(result.calls, 1)
     assert.strictEqual(result.sleeps, 0)
 })
 
-test('ReadError with ECONNRESET is retryable', async () => {
-    const result = await run([{ type: 'fail', error: readReset() }, { type: 'success' }])
+test('stream reset (ECONNRESET) is retryable', async () => {
+    const error = new Error('socket hang up')
+    error.code = 'ECONNRESET'
+    const result = await run([{ type: 'stream-error', error }, { type: 'success' }])
     assert.strictEqual(result.outcome, 'ok')
     assert.strictEqual(result.calls, 2)
     assert.strictEqual(result.sleeps, 1)
 })
 
 test('retries are exhausted after MAX_RETRIES', async () => {
-    const result = await run(Array.from({ length: 11 }, () => ({ type: 'fail', error: retryable() })))
-    assert.strictEqual(result.outcome, 'error:server did not respond')
+    const result = await run(Array.from({ length: 11 }, () => ({ type: 'network' })))
+    assert.strictEqual(result.outcome, 'error:fetch failed')
     assert.strictEqual(result.calls, 11)
     assert.strictEqual(result.sleeps, 10)
 })

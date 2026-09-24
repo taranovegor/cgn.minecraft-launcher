@@ -1,4 +1,4 @@
-const got = require('got')
+const { fetchJson } = require('../../http')
 const { join, dirname } = require('path')
 const fs = require('fs-extra')
 const { HashAlgo } = require('../Asset')
@@ -23,9 +23,6 @@ class MojangIndexProcessor extends IndexProcessor {
     version
     versionJson
     assetIndex
-    client = got.extend({
-        responseType: 'json'
-    })
     assetPath
 
     constructor(commonDir, version) {
@@ -119,7 +116,7 @@ class MojangIndexProcessor extends IndexProcessor {
             throw new AssetGuardError(`Failure while loading ${path}.`, error)
         }
         try {
-            const res = await this.client.get(url)
+            const res = await fetchJson(url)
             await fs.ensureDir(dirname(path))
             await fs.writeFile(path, JSON.stringify(res.body))
             return res.body
@@ -130,7 +127,7 @@ class MojangIndexProcessor extends IndexProcessor {
 
     async loadVersionManifest() {
         try {
-            const res = await this.client.get(MojangIndexProcessor.VERSION_MANIFEST_ENDPOINT)
+            const res = await fetchJson(MojangIndexProcessor.VERSION_MANIFEST_ENDPOINT)
             return res.body
         } catch (error) {
             return handleGotError('Load Mojang Version Manifest', error, MojangIndexProcessor.logger, () => null).data

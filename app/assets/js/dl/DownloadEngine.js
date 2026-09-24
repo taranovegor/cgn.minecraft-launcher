@@ -1,7 +1,7 @@
 const { createWriteStream } = require('fs')
-const got = require('got')
+const { Readable } = require('stream')
 const { pipeline } = require('stream/promises')
-const fastq = require('fastq')
+const { request, HTTPError, RequestError } = require('../http')
 const fs = require('fs-extra')
 const { dirname } = require('path')
 const { LoggerUtil } = require('../util/LoggerUtil')
@@ -11,6 +11,22 @@ const log = LoggerUtil.getLogger('DownloadEngine')
 
 function getExpectedDownloadSize(assets) {
     return assets.map(({ size }) => size).reduce((acc, v) => acc + v, 0)
+}
+
+async function runWithConcurrency(items, worker, concurrency) {
+    let index = 0
+    const run = async () => {
+        while (index < items.length) {
+            const current = index++
+            await worker(items[current])
+        }
+    }
+    const workers = []
+    const size = Math.min(concurrency, items.length)
+    for (let i = 0; i < size; i++) {
+        workers.push(run())
+    }
+    await Promise.all(workers)
 }
 
 async function downloadQueue(assets, onProgress) {
@@ -24,9 +40,7 @@ async function downloadQueue(assets, onProgress) {
         }
     }
     const wrap = (asset) => downloadFile(asset.url, asset.path, onEachProgress(asset))
-    const q = fastq.promise(wrap, 15)
-    const promises = assets.map(asset => q.push(asset))
-    await Promise.all(promises)
+    await runWithConcurrency(assets, wrap, 15)
     return receivedTotals
 }
 
@@ -34,20 +48,32 @@ async function downloadFile(url, path, onProgress) {
     await fs.ensureDir(dirname(path))
     const MAX_RETRIES = 10
 
-    // Got's streaming retry API is nonexistant and their "example" is egregious.
-    // To use their "api" you need to commit yourself to recursive callback hell.
-    // No thank you, I prefer this simpler, non error-prone logic.
     for (let retryCount = 0; ; retryCount++) {
         if (retryCount > 0) {
             log.debug(`Retry attempt #${retryCount} for ${url}.`)
         }
         let fileWriterStream = null // The write stream.
         try {
-            const downloadStream = got.stream(url)
-            fileWriterStream = createWriteStream(path)
-            if (onProgress) {
-                downloadStream.on('downloadProgress', (progress) => onProgress(progress))
+            const response = await request(url)
+            if (!response.ok) {
+                throw new HTTPError(`Response code ${response.status} (${response.statusText})`, {
+                    statusCode: response.status,
+                    statusMessage: response.statusText,
+                    body: null,
+                    headers: {},
+                    url
+                })
             }
+            const total = Number(response.headers.get('content-length')) || 0
+            let transferred = 0
+            const downloadStream = Readable.fromWeb(response.body)
+            if (onProgress) {
+                downloadStream.on('data', (chunk) => {
+                    transferred += chunk.length
+                    onProgress({ transferred, total, percent: total > 0 ? (transferred / total) * 100 : 0 })
+                })
+            }
+            fileWriterStream = createWriteStream(path)
             await pipeline(downloadStream, fileWriterStream)
             return
         } catch (error) {
@@ -74,12 +100,12 @@ async function downloadFile(url, path, onProgress) {
 }
 
 function retryableError(error) {
-    if (error instanceof got.RequestError) {
-        // error.name === 'RequestError' means server did not respond.
-        return error.name === 'RequestError' || (error instanceof got.ReadError && error.code === 'ECONNRESET')
-    } else {
+    // HTTP error responses (4xx/5xx) are not retryable; connection level
+    // failures and stream resets are.
+    if (error instanceof HTTPError) {
         return false
     }
+    return error instanceof RequestError || error.code === 'ECONNRESET'
 }
 
 module.exports = { getExpectedDownloadSize, downloadQueue, downloadFile }

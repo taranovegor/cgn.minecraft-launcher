@@ -3,7 +3,7 @@ const { LoggerUtil } = require('./util/LoggerUtil')
 
 const logger = LoggerUtil.getLogger('DiscordWrapper')
 
-const { Client } = require('discord-rpc-patch')
+const { Client } = require('@xhayper/discord-rpc')
 
 const Lang = require('./langloader')
 
@@ -11,7 +11,10 @@ let client
 let activity
 
 exports.initRPC = function(genSettings, servSettings, initialDetails = Lang.queryJS('discord.waiting')){
-    client = new Client({ transport: 'ipc' })
+    client = new Client({
+        clientId: genSettings.clientId,
+        transport: { type: 'ipc' }
+    })
 
     activity = {
         details: initialDetails,
@@ -26,10 +29,10 @@ exports.initRPC = function(genSettings, servSettings, initialDetails = Lang.quer
 
     client.on('ready', () => {
         logger.info('Discord RPC Connected')
-        client.setActivity(activity)
+        client.user?.setActivity(activity)
     })
 
-    client.login({clientId: genSettings.clientId}).catch(error => {
+    client.login().catch(error => {
         if(error.message.includes('ENOENT')) {
             logger.info('Unable to initialize Discord Rich Presence, no client detected.')
         } else {
@@ -40,12 +43,12 @@ exports.initRPC = function(genSettings, servSettings, initialDetails = Lang.quer
 
 exports.updateDetails = function(details){
     activity.details = details
-    client.setActivity(activity)
+    client.user?.setActivity(activity)
 }
 
 exports.shutdownRPC = function(){
     if(!client) return
-    client.clearActivity()
+    client.user?.clearActivity()
     client.destroy()
     client = null
     activity = null

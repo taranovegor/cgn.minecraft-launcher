@@ -1,6 +1,6 @@
 const { resolve } = require('path')
-const got = require('got')
 const fs = require('fs-extra')
+const { fetchJson } = require('../../http')
 const { LoggerUtil } = require('../../util/LoggerUtil')
 const { RestResponseStatus, handleGotError } = require('../rest/RestResponse')
 const { HeliosDistribution } = require('./DistributionFactory')
@@ -105,7 +105,7 @@ class DistributionAPI {
 
     async pullRemote() {
         try {
-            const res = await got.get(this.remoteUrl, { responseType: 'json' })
+            const res = await fetchJson(this.remoteUrl)
             return {
                 data: res.body,
                 responseStatus: RestResponseStatus.SUCCESS

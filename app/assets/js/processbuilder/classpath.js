@@ -1,4 +1,4 @@
-const AdmZip = require('adm-zip')
+const { unzipSync } = require('fflate')
 const fs = require('fs-extra')
 const path = require('path')
 const { LoggerUtil } = require('../util/LoggerUtil')
@@ -76,12 +76,12 @@ module.exports = {
                     // Location of native zip.
                     const to = path.join(this.libPath, artifact.path)
 
-                    let zip = new AdmZip(to)
-                    let zipEntries = zip.getEntries()
-
                     // Unzip the native zip.
-                    for(let i=0; i<zipEntries.length; i++){
-                        const fileName = zipEntries[i].entryName
+                    const zipEntries = unzipSync(fs.readFileSync(to))
+                    for(const [fileName, data] of Object.entries(zipEntries)){
+                        if(fileName.endsWith('/')) {
+                            continue
+                        }
 
                         let shouldExclude = false
 
@@ -94,7 +94,7 @@ module.exports = {
 
                         // Extract the file.
                         if(!shouldExclude){
-                            fs.writeFile(path.join(tempNativePath, fileName), zipEntries[i].getData(), (err) => {
+                            fs.writeFile(path.join(tempNativePath, fileName), Buffer.from(data), (err) => {
                                 if(err){
                                     logger.error('Error while extracting native library:', err)
                                 }
@@ -121,16 +121,12 @@ module.exports = {
                     // Location of native zip.
                     const to = path.join(this.libPath, artifact.path)
 
-                    let zip = new AdmZip(to)
-                    let zipEntries = zip.getEntries()
-
                     // Unzip the native zip.
-                    for(let i=0; i<zipEntries.length; i++){
-                        if(zipEntries[i].isDirectory) {
+                    const zipEntries = unzipSync(fs.readFileSync(to))
+                    for(const [fileName, data] of Object.entries(zipEntries)){
+                        if(fileName.endsWith('/')) {
                             continue
                         }
-
-                        const fileName = zipEntries[i].entryName
 
                         let shouldExclude = false
 
@@ -145,7 +141,7 @@ module.exports = {
 
                         // Extract the file.
                         if(!shouldExclude){
-                            fs.writeFile(path.join(tempNativePath, extractName), zipEntries[i].getData(), (err) => {
+                            fs.writeFile(path.join(tempNativePath, extractName), Buffer.from(data), (err) => {
                                 if(err){
                                     logger.error('Error while extracting native library:', err)
                                 }
