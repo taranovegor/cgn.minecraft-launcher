@@ -1,5 +1,5 @@
 import { StreamZipAsync } from 'node-stream-zip';
-import tar from 'tar-fs';
+import * as tar from 'tar-fs';
 export declare function calculateHashByBuffer(buf: Buffer, algo: string): string;
 export declare function calculateHash(path: string, algo: string): Promise<string>;
 export declare function validateLocalFile(path: string, algo: string, hash?: string): Promise<boolean>;

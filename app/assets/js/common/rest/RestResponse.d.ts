@@ -1,5 +1,4 @@
-import { RequestError } from 'got';
-import { Logger } from 'winston';
+import { Logger } from '../../util/LoggerUtil';
 /**
  * Rest Response status.
  */
@@ -29,7 +28,7 @@ export interface RestResponse<T> {
     /**
      * If responseStatus is ERROR, the error body.
      */
-    error?: RequestError;
+    error?: Error;
 }
 /**
  * An object to translate an error code to a displayable message.
@@ -46,7 +45,7 @@ export interface DisplayableError {
 }
 export declare function isDisplayableError(it: unknown): boolean;
 /**
- * Handle a got error for a generic RestResponse.
+ * Handle an error for a generic RestResponse.
  *
  * @param operation The operation name, for logging purposes.
  * @param error The error that occurred.
@@ -54,4 +53,4 @@ export declare function isDisplayableError(it: unknown): boolean;
  * @param dataProvider A function to provide a response body.
  * @returns A RestResponse configured with error information.
  */
-export declare function handleGotError<T>(operation: string, error: RequestError, logger: Logger, dataProvider: () => T): RestResponse<T>;
+export declare function handleGotError<T>(operation: string, error: Error, logger: Logger, dataProvider: () => T): RestResponse<T>;
