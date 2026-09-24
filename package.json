@@ -1,11 +1,11 @@
 {
   "name": "cgn.minecraft-launcher",
-  "version": "0.14.3",
+  "version": "0.15.0",
   "productName": "CraftGame Launcher",
   "description": "Minecraft launcher for craftgame.net",
   "author": "CraftGame.net",
   "license": "MIT",
-  "homepage": "https://github.com/taranovegor/cgn.minecraft-launcher",
+  "homepage": "https://github.com/craftgame-net/minecraft-launcher",
   "private": true,
   "main": "index.js",
   "scripts": {
@@ -13,6 +13,7 @@
     "dist": "electron-builder build",
     "dist:win": "npm run dist -- -w",
     "dist:linux": "npm run dist -- -l",
+    "dist:mac": "npm run dist -- -m",
     "lint": "eslint .",
     "test": "node --test"
   },
@@ -50,6 +51,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/taranovegor/cgn.minecraft-launcher.git"
+    "url": "git+https://github.com/craftgame-net/minecraft-launcher.git"
   }
 }

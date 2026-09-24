@@ -1,4 +1,4 @@
-# cgn.minecraft-launcher
+# minecraft-launcher
 
 Minecraft launcher for [craftgame.net](http://craftgame.net/).
 
@@ -20,8 +20,8 @@ Based on [Helios Launcher](https://github.com/dscalzi/HeliosLauncher) by [dscalz
 **Requirements:** Node.js v22
 
 ```bash
-git clone https://github.com/taranovegor/cgn.minecraft-launcher.git
-cd cgn.minecraft-launcher
+git clone https://github.com/craftgame-net/minecraft-launcher.git
+cd minecraft-launcher
 npm install
 npm start
 ```

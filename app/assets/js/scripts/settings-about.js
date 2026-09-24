@@ -1,4 +1,5 @@
 const semver = require('semver')
+const { RELEASES } = require('./assets/js/endpoints')
 
 /**
  * About Tab
@@ -62,7 +63,7 @@ function populateAboutVersionInformation(){
 function populateReleaseNotes(){
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 2500)
-    fetch('https://github.com/taranovegor/cgn.minecraft-launcher/releases.atom', { signal: controller.signal })
+    fetch(`${RELEASES}.atom`, { signal: controller.signal })
         .then(response => response.text())
         .then((data) => {
             const version = 'v' + remote.app.getVersion()

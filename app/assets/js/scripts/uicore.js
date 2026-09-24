@@ -9,6 +9,7 @@ const {ipcRenderer, shell, webFrame} = require('electron')
 const remote                         = require('@electron/remote')
 const isDev                          = require('./assets/js/isdev')
 const Lang                           = require('./assets/js/langloader')
+const { RELEASES }                   = require('./assets/js/endpoints')
 
 const loggerUICore             = LoggerUtil.getLogger('UICore')
 const loggerAutoUpdater        = LoggerUtil.getLogger('AutoUpdater')
@@ -46,7 +47,7 @@ if(!isDev){
                 loggerAutoUpdater.info('New update available', info.version)
 
                 if(process.platform === 'darwin'){
-                    info.darwindownload = `https://github.com/taranovegor/cgn.minecraft-launcher/releases/download/v${info.version}/cgn-launcher-setup-${info.version}${process.arch === 'arm64' ? '-arm64' : '-x64'}.dmg`
+                    info.darwindownload = `${RELEASES}/download/v${info.version}/CraftGameLauncher-${info.version}-${process.arch === 'arm64' ? 'arm64' : 'x64'}.dmg`
                     showUpdateUI(info)
                 }
 
