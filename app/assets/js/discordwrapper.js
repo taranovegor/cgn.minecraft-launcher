@@ -9,16 +9,45 @@ const Lang = require('./langloader')
 
 let client
 let activity
+let texts = {}
 
-exports.initRPC = function(genSettings, servSettings, initialDetails = Lang.queryJS('discord.waiting')){
+// Discord status texts can be overridden per distribution/server in the
+// distribution index (server-list) and fall back to the bundled language file.
+function resolveText(servSettings, genSettings, key, fallbackKey, tokens) {
+    const custom = servSettings?.[key] ?? genSettings?.[key]
+    if (custom != null) {
+        let text = custom
+        if (tokens != null) {
+            for (const [token, value] of Object.entries(tokens)) {
+                text = text.replace(`{${token}}`, value)
+            }
+        }
+        return text
+    }
+    return Lang.queryJS(fallbackKey, tokens)
+}
+
+exports.initRPC = function(genSettings, servSettings, initialDetails){
+    genSettings = genSettings || {}
+    servSettings = servSettings || {}
+
+    const tokens = { shortId: servSettings.shortId }
+    texts = {
+        waiting: resolveText(servSettings, genSettings, 'waitingText', 'discord.waiting'),
+        state: resolveText(servSettings, genSettings, 'stateText', 'discord.state', tokens),
+        loading: resolveText(servSettings, genSettings, 'loadingText', 'landing.discord.loading'),
+        joining: resolveText(servSettings, genSettings, 'joiningText', 'landing.discord.joining'),
+        joined: resolveText(servSettings, genSettings, 'joinedText', 'landing.discord.joined')
+    }
+
     client = new Client({
         clientId: genSettings.clientId,
         transport: { type: 'ipc' }
     })
 
     activity = {
-        details: initialDetails,
-        state: Lang.queryJS('discord.state', {shortId: servSettings.shortId}),
+        details: initialDetails ?? texts.waiting,
+        state: texts.state,
         largeImageKey: servSettings.largeImageKey,
         largeImageText: servSettings.largeImageText,
         smallImageKey: genSettings.smallImageKey,
@@ -41,9 +70,12 @@ exports.initRPC = function(genSettings, servSettings, initialDetails = Lang.quer
     })
 }
 
-exports.updateDetails = function(details){
-    activity.details = details
-    client.user?.setActivity(activity)
+exports.setStage = function(stage){
+    if(activity == null) return
+    activity.details = texts[stage] ?? texts.waiting
+    if(client != null) {
+        client.user?.setActivity(activity)
+    }
 }
 
 exports.shutdownRPC = function(){
@@ -52,4 +84,5 @@ exports.shutdownRPC = function(){
     client.destroy()
     client = null
     activity = null
+    texts = {}
 }

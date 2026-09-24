@@ -118,8 +118,8 @@ updateReleaseNotes = "Обновить заметки о релизе"
 waitingText = "Ожидание авторизации..."
 
 [js.discord]
-waiting = "Ожидание клиента.."
-state = "Сервер: {shortId}"
+waiting = "Сидит в лаунчере"
+state = "На сервере {shortId}"
 
 [js.index]
 microsoftLoginTitle = "Вход в Microsoft"
@@ -195,9 +195,9 @@ doneEnjoyServer = "Запуск клиента..."
 checkConsoleForDetails = "Пожалуйста, проверьте консоль (CTRL + Shift + i) для получения дополнительной информации."
 
 [js.landing.discord]
-loading = "Загрузка игры.."
-joining = "Плаваем в Вестерос!"
-joined = "Исследуем королевство!"
+loading = "Загружает Minecraft..."
+joining = "Заходит на сервер"
+joined = "Исследует мир"
 
 [js.overlay]
 dismiss = "Закрыть"

@@ -17,6 +17,16 @@ export interface Distribution {
          * Name of the uploaded image for the small profile artwork.
          */
         smallImageKey: string;
+        /**
+         * Global defaults for the Discord status texts. Server level values
+         * take precedence. All fields are optional and fall back to the
+         * bundled language file.
+         */
+        waitingText?: string;
+        stateText?: string;
+        loadingText?: string;
+        joiningText?: string;
+        joinedText?: string;
     };
     /**
      * A URL to a RSS feed. Used for loading news.

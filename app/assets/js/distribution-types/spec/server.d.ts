@@ -51,6 +51,28 @@ export interface Server {
          * Name of the uploaded image for the large profile artwork.
          */
         largeImageKey: string;
+        /**
+         * Details text shown while the launcher waits for the Discord client.
+         * Falls back to the bundled language file.
+         */
+        waitingText?: string;
+        /**
+         * Second status line. Supports the {shortId} placeholder.
+         * Falls back to "Сервер: {shortId}".
+         */
+        stateText?: string;
+        /**
+         * Details text shown while the game is loading.
+         */
+        loadingText?: string;
+        /**
+         * Details text shown while the player is joining the world.
+         */
+        joiningText?: string;
+        /**
+         * Details text shown once the player has joined the server.
+         */
+        joinedText?: string;
     };
     /**
      * Only one server in the array should have the mainServer property enabled. This
