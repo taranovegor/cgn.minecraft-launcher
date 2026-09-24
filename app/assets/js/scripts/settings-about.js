@@ -1,3 +1,5 @@
+const semver = require('semver')
+
 /**
  * About Tab
  */
