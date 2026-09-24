@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { StreamZipAsync } from 'node-stream-zip';
 import tar from 'tar-fs';
 export declare function calculateHashByBuffer(buf: Buffer, algo: string): string;

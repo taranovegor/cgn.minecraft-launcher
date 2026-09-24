@@ -1,60 +1,42 @@
-"use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MojangRestAPI = exports.MojangStatusColor = void 0;
-const LoggerUtil_1 = require("../../util/LoggerUtil");
-const got_1 = __importStar(require("got"));
-const MojangResponse_1 = require("./MojangResponse");
-const RestResponse_1 = require("../../common/rest/RestResponse");
-var MojangStatusColor;
-(function (MojangStatusColor) {
-    MojangStatusColor["RED"] = "red";
-    MojangStatusColor["YELLOW"] = "yellow";
-    MojangStatusColor["GREEN"] = "green";
-    MojangStatusColor["GREY"] = "grey";
-})(MojangStatusColor || (exports.MojangStatusColor = MojangStatusColor = {}));
+const { LoggerUtil } = require('../../util/LoggerUtil')
+const got = require('got')
+const { decipherErrorCode, isInternalError, MojangErrorCode } = require('./MojangResponse')
+const { handleGotError, RestResponseStatus } = require('../../common/rest/RestResponse')
+
+const MojangStatusColor = {
+    RED: 'red',
+    YELLOW: 'yellow',
+    GREEN: 'green',
+    GREY: 'grey'
+}
+
 class MojangRestAPI {
-    static logger = LoggerUtil_1.LoggerUtil.getLogger('Mojang');
-    static TIMEOUT = 2500;
-    static AUTH_ENDPOINT = 'https://ygg.mc.craftgame.net/auth';
-    static STATUS_ENDPOINT = 'https://raw.githubusercontent.com/AventiumSoftworks/helios-status-page/master/history/summary.json';
-    static authClient = got_1.default.extend({
+
+    static logger = LoggerUtil.getLogger('Mojang')
+
+    static TIMEOUT = 2500
+    static AUTH_ENDPOINT = 'https://ygg.mc.craftgame.net/auth'
+    static STATUS_ENDPOINT = 'https://raw.githubusercontent.com/AventiumSoftworks/helios-status-page/master/history/summary.json'
+
+    static authClient = got.extend({
         prefixUrl: MojangRestAPI.AUTH_ENDPOINT,
         responseType: 'json',
         retry: 0
-    });
-    static statusClient = got_1.default.extend({
+    })
+
+    static statusClient = got.extend({
         url: MojangRestAPI.STATUS_ENDPOINT,
         responseType: 'json',
         retry: 0
-    });
+    })
+
     static MINECRAFT_AGENT = {
         name: 'Minecraft',
         version: 1
-    };
-    static statuses = MojangRestAPI.getDefaultStatuses();
+    }
+
+    static statuses = MojangRestAPI.getDefaultStatuses()
+
     static getDefaultStatuses() {
         return [
             {
@@ -111,8 +93,9 @@ class MojangRestAPI {
                 name: 'Minecraft Profile for Microsoft Accounts',
                 essential: false
             }
-        ];
+        ]
     }
+
     /**
      * Converts a Mojang status color to a hex value. Valid statuses
      * are 'green', 'yellow', 'red', and 'grey'. Grey is a custom status
@@ -121,16 +104,17 @@ class MojangRestAPI {
     static statusToHex(status) {
         switch (status.toLowerCase()) {
             case MojangStatusColor.GREEN:
-                return '#a5c325';
+                return '#a5c325'
             case MojangStatusColor.YELLOW:
-                return '#eac918';
+                return '#eac918'
             case MojangStatusColor.RED:
-                return '#c32625';
+                return '#c32625'
             case MojangStatusColor.GREY:
             default:
-                return '#848484';
+                return '#848484'
         }
     }
+
     /**
      * MojangRestAPI implementation of handleGotError. This function will additionally
      * analyze the response from Mojang and populate the mojang-specific error information.
@@ -141,19 +125,18 @@ class MojangRestAPI {
      * @returns A MojangResponse configured with error information.
      */
     static handleGotError(operation, error, dataProvider) {
-        const response = (0, RestResponse_1.handleGotError)(operation, error, MojangRestAPI.logger, dataProvider);
-        if (error instanceof got_1.HTTPError) {
-            response.mojangErrorCode = (0, MojangResponse_1.decipherErrorCode)(error.response.body);
+        const response = handleGotError(operation, error, MojangRestAPI.logger, dataProvider)
+        if (error instanceof got.HTTPError) {
+            response.mojangErrorCode = decipherErrorCode(error.response.body)
+        } else if (error.name === 'RequestError' && error.code === 'ENOTFOUND') {
+            response.mojangErrorCode = MojangErrorCode.ERROR_UNREACHABLE
+        } else {
+            response.mojangErrorCode = MojangErrorCode.UNKNOWN
         }
-        else if (error.name === 'RequestError' && error.code === 'ENOTFOUND') {
-            response.mojangErrorCode = MojangResponse_1.MojangErrorCode.ERROR_UNREACHABLE;
-        }
-        else {
-            response.mojangErrorCode = MojangResponse_1.MojangErrorCode.UNKNOWN;
-        }
-        response.isInternalError = (0, MojangResponse_1.isInternalError)(response.mojangErrorCode);
-        return response;
+        response.isInternalError = isInternalError(response.mojangErrorCode)
+        return response
     }
+
     /**
      * Utility function to report an unexpected success code. An unexpected
      * code may indicate an API change.
@@ -164,9 +147,10 @@ class MojangRestAPI {
      */
     static expectSpecificSuccess(operation, expected, actual) {
         if (actual !== expected) {
-            MojangRestAPI.logger.warn(`${operation} expected ${expected} response, received ${actual}.`);
+            MojangRestAPI.logger.warn(`${operation} expected ${expected} response, received ${actual}.`)
         }
     }
+
     /**
      * Retrieves the status of Mojang's services.
      * The response is condensed into a single object. Each service is
@@ -181,30 +165,30 @@ class MojangRestAPI {
      */
     static async status() {
         try {
-            const res = await MojangRestAPI.statusClient.get({});
-            MojangRestAPI.expectSpecificSuccess('Mojang Status', 200, res.statusCode);
+            const res = await MojangRestAPI.statusClient.get({})
+            MojangRestAPI.expectSpecificSuccess('Mojang Status', 200, res.statusCode)
             for (const status of res.body) {
                 for (const mojStatus of MojangRestAPI.statuses) {
                     if (mojStatus.service === status.slug) {
-                        mojStatus.status = status.status === 'up' ? MojangStatusColor.GREEN : MojangStatusColor.RED;
-                        break;
+                        mojStatus.status = status.status === 'up' ? MojangStatusColor.GREEN : MojangStatusColor.RED
+                        break
                     }
                 }
             }
             return {
                 data: MojangRestAPI.statuses,
-                responseStatus: RestResponse_1.RestResponseStatus.SUCCESS
-            };
-        }
-        catch (error) {
+                responseStatus: RestResponseStatus.SUCCESS
+            }
+        } catch (error) {
             return MojangRestAPI.handleGotError('Mojang Status', error, () => {
                 for (const status of MojangRestAPI.statuses) {
-                    status.status = MojangStatusColor.GREY;
+                    status.status = MojangStatusColor.GREY
                 }
-                return MojangRestAPI.statuses;
-            });
+                return MojangRestAPI.statuses
+            })
         }
     }
+
     /**
      * Authenticate a user with their Mojang credentials.
      *
@@ -223,21 +207,21 @@ class MojangRestAPI {
                 username,
                 password,
                 requestUser
-            };
-            if (clientToken != null) {
-                json.clientToken = clientToken;
             }
-            const res = await MojangRestAPI.authClient.post('authenticate', { json, responseType: 'json' });
-            MojangRestAPI.expectSpecificSuccess('Mojang Authenticate', 200, res.statusCode);
+            if (clientToken != null) {
+                json.clientToken = clientToken
+            }
+            const res = await MojangRestAPI.authClient.post('authenticate', { json, responseType: 'json' })
+            MojangRestAPI.expectSpecificSuccess('Mojang Authenticate', 200, res.statusCode)
             return {
                 data: res.body,
-                responseStatus: RestResponse_1.RestResponseStatus.SUCCESS
-            };
-        }
-        catch (err) {
-            return MojangRestAPI.handleGotError('Mojang Authenticate', err, () => null);
+                responseStatus: RestResponseStatus.SUCCESS
+            }
+        } catch (err) {
+            return MojangRestAPI.handleGotError('Mojang Authenticate', err, () => null)
         }
     }
+
     /**
      * Validate an access token. This should always be done before launching.
      * The client token should match the one used to create the access token.
@@ -252,24 +236,24 @@ class MojangRestAPI {
             const json = {
                 accessToken,
                 clientToken
-            };
-            const res = await MojangRestAPI.authClient.post('validate', { json });
-            MojangRestAPI.expectSpecificSuccess('Mojang Validate', 204, res.statusCode);
+            }
+            const res = await MojangRestAPI.authClient.post('validate', { json })
+            MojangRestAPI.expectSpecificSuccess('Mojang Validate', 204, res.statusCode)
             return {
                 data: res.statusCode === 204,
-                responseStatus: RestResponse_1.RestResponseStatus.SUCCESS
-            };
-        }
-        catch (err) {
-            if (err instanceof got_1.HTTPError && err.response.statusCode === 403) {
+                responseStatus: RestResponseStatus.SUCCESS
+            }
+        } catch (err) {
+            if (err instanceof got.HTTPError && err.response.statusCode === 403) {
                 return {
                     data: false,
-                    responseStatus: RestResponse_1.RestResponseStatus.SUCCESS
-                };
+                    responseStatus: RestResponseStatus.SUCCESS
+                }
             }
-            return MojangRestAPI.handleGotError('Mojang Validate', err, () => false);
+            return MojangRestAPI.handleGotError('Mojang Validate', err, () => false)
         }
     }
+
     /**
      * Invalidates an access token. The clientToken must match the
      * token used to create the provided accessToken.
@@ -284,18 +268,18 @@ class MojangRestAPI {
             const json = {
                 accessToken,
                 clientToken
-            };
-            const res = await MojangRestAPI.authClient.post('invalidate', { json });
-            MojangRestAPI.expectSpecificSuccess('Mojang Invalidate', 204, res.statusCode);
+            }
+            const res = await MojangRestAPI.authClient.post('invalidate', { json })
+            MojangRestAPI.expectSpecificSuccess('Mojang Invalidate', 204, res.statusCode)
             return {
                 data: undefined,
-                responseStatus: RestResponse_1.RestResponseStatus.SUCCESS
-            };
-        }
-        catch (err) {
-            return MojangRestAPI.handleGotError('Mojang Invalidate', err, () => undefined);
+                responseStatus: RestResponseStatus.SUCCESS
+            }
+        } catch (err) {
+            return MojangRestAPI.handleGotError('Mojang Invalidate', err, () => undefined)
         }
     }
+
     /**
      * Refresh a user's authentication. This should be used to keep a user logged
      * in without asking them for their credentials again. A new access token will
@@ -313,17 +297,18 @@ class MojangRestAPI {
                 accessToken,
                 clientToken,
                 requestUser
-            };
-            const res = await MojangRestAPI.authClient.post('refresh', { json, responseType: 'json' });
-            MojangRestAPI.expectSpecificSuccess('Mojang Refresh', 200, res.statusCode);
+            }
+            const res = await MojangRestAPI.authClient.post('refresh', { json, responseType: 'json' })
+            MojangRestAPI.expectSpecificSuccess('Mojang Refresh', 200, res.statusCode)
             return {
                 data: res.body,
-                responseStatus: RestResponse_1.RestResponseStatus.SUCCESS
-            };
-        }
-        catch (err) {
-            return MojangRestAPI.handleGotError('Mojang Refresh', err, () => null);
+                responseStatus: RestResponseStatus.SUCCESS
+            }
+        } catch (err) {
+            return MojangRestAPI.handleGotError('Mojang Refresh', err, () => null)
         }
     }
+
 }
-exports.MojangRestAPI = MojangRestAPI;
+
+module.exports = { MojangRestAPI, MojangStatusColor }

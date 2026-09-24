@@ -1,29 +1,27 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleGotError = exports.isDisplayableError = exports.RestResponseStatus = void 0;
-const got_1 = require("got");
+const { HTTPError, TimeoutError, ParseError } = require('got')
+
 /**
  * Rest Response status.
  */
-var RestResponseStatus;
-(function (RestResponseStatus) {
+const RestResponseStatus = {
     /**
      * Status indicating the request was successful.
      */
-    RestResponseStatus[RestResponseStatus["SUCCESS"] = 0] = "SUCCESS";
+    SUCCESS: 0,
     /**
      * Status indicating there was a problem with the response.
      * All status codes outside the 200 range will have an error status.
      */
-    RestResponseStatus[RestResponseStatus["ERROR"] = 1] = "ERROR";
-})(RestResponseStatus || (exports.RestResponseStatus = RestResponseStatus = {}));
+    ERROR: 1
+}
+
 function isDisplayableError(it) {
     return typeof it == 'object'
         && it != null
         && Object.prototype.hasOwnProperty.call(it, 'title')
-        && Object.prototype.hasOwnProperty.call(it, 'desc');
+        && Object.prototype.hasOwnProperty.call(it, 'desc')
 }
-exports.isDisplayableError = isDisplayableError;
+
 /**
  * Handle a got error for a generic RestResponse.
  *
@@ -38,27 +36,28 @@ function handleGotError(operation, error, logger, dataProvider) {
         data: dataProvider(),
         responseStatus: RestResponseStatus.ERROR,
         error
-    };
-    if (error instanceof got_1.HTTPError) {
-        logger.error(`Error during ${operation} request (HTTP Response ${error.response.statusCode})`, error);
-        logger.debug('Response Details:');
-        logger.debug(`URL: ${error.request.requestUrl}`);
-        logger.debug('Body:', error.response.body);
-        logger.debug('Headers:', error.response.headers);
     }
-    else if (error.name === 'RequestError') {
-        logger.error(`${operation} request received no response (${error.code}).`, error);
-    }
-    else if (error instanceof got_1.TimeoutError) {
-        logger.error(`${operation} request timed out (${error.timings.phases.total}ms).`);
-    }
-    else if (error instanceof got_1.ParseError) {
-        logger.error(`${operation} request received unexepected body (Parse Error).`);
-    }
-    else {
+    if (error instanceof HTTPError) {
+        logger.error(`Error during ${operation} request (HTTP Response ${error.response.statusCode})`, error)
+        logger.debug('Response Details:')
+        logger.debug(`URL: ${error.request.requestUrl}`)
+        logger.debug('Body:', error.response.body)
+        logger.debug('Headers:', error.response.headers)
+    } else if (error.name === 'RequestError') {
+        logger.error(`${operation} request received no response (${error.code}).`, error)
+    } else if (error instanceof TimeoutError) {
+        logger.error(`${operation} request timed out (${error.timings.phases.total}ms).`)
+    } else if (error instanceof ParseError) {
+        logger.error(`${operation} request received unexepected body (Parse Error).`)
+    } else {
         // CacheError, ReadError, MaxRedirectsError, UnsupportedProtocolError, CancelError
-        logger.error(`Error during ${operation} request.`, error);
+        logger.error(`Error during ${operation} request.`, error)
     }
-    return response;
+    return response
 }
-exports.handleGotError = handleGotError;
+
+module.exports = {
+    RestResponseStatus,
+    isDisplayableError,
+    handleGotError
+}

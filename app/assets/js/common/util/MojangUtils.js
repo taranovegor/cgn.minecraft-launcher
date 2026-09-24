@@ -1,47 +1,43 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.mcVersionAtLeast = exports.isLibraryCompatible = exports.validateLibraryNatives = exports.validateLibraryRules = exports.getMojangOS = void 0;
 function getMojangOS() {
-    const opSys = process.platform;
+    const opSys = process.platform
     switch (opSys) {
         case 'darwin':
-            return 'osx';
+            return 'osx'
         case 'win32':
-            return 'windows';
+            return 'windows'
         case 'linux':
-            return 'linux';
+            return 'linux'
         default:
-            return opSys;
+            return opSys
     }
 }
-exports.getMojangOS = getMojangOS;
+
 function validateLibraryRules(rules) {
     if (rules == null) {
-        return false;
+        return false
     }
     for (const rule of rules) {
         if (rule.action != null && rule.os != null) {
-            const osName = rule.os.name;
-            const osMoj = getMojangOS();
+            const osName = rule.os.name
+            const osMoj = getMojangOS()
             if (rule.action === 'allow') {
-                return osName === osMoj;
-            }
-            else if (rule.action === 'disallow') {
-                return osName !== osMoj;
+                return osName === osMoj
+            } else if (rule.action === 'disallow') {
+                return osName !== osMoj
             }
         }
     }
-    return true;
+    return true
 }
-exports.validateLibraryRules = validateLibraryRules;
+
 function validateLibraryNatives(natives) {
-    return natives == null ? true : Object.hasOwnProperty.call(natives, getMojangOS());
+    return natives == null ? true : Object.hasOwnProperty.call(natives, getMojangOS())
 }
-exports.validateLibraryNatives = validateLibraryNatives;
+
 function isLibraryCompatible(rules, natives) {
-    return rules == null ? validateLibraryNatives(natives) : validateLibraryRules(rules);
+    return rules == null ? validateLibraryNatives(natives) : validateLibraryRules(rules)
 }
-exports.isLibraryCompatible = isLibraryCompatible;
+
 /**
  * Returns true if the actual version is greater than
  * or equal to the desired version.
@@ -50,14 +46,21 @@ exports.isLibraryCompatible = isLibraryCompatible;
  * @param {string} actual The actual version.
  */
 function mcVersionAtLeast(desired, actual) {
-    const des = desired.split('.');
-    const act = actual.split('.');
+    const des = desired.split('.')
+    const act = actual.split('.')
     for (let i = 0; i < des.length; i++) {
-        const d = parseInt(des[i]);
-        const a = parseInt(act[i] ?? 0);
-        if (a > d) return true;
-        if (a < d) return false;
+        const d = parseInt(des[i])
+        const a = parseInt(act[i] ?? 0)
+        if (a > d) return true
+        if (a < d) return false
     }
-    return true;
+    return true
 }
-exports.mcVersionAtLeast = mcVersionAtLeast;
+
+module.exports = {
+    getMojangOS,
+    validateLibraryRules,
+    validateLibraryNatives,
+    isLibraryCompatible,
+    mcVersionAtLeast
+}

@@ -1,4 +1,4 @@
-import { Distribution, Server, Module, Required as HeliosRequired, JavaVersionProps } from 'helios-distribution-types';
+import { Distribution, Server, Module, Required as HeliosRequired, JavaVersionProps } from '../../distribution-types';
 import { MavenComponents } from '../util/MavenUtil';
 export declare class HeliosDistribution {
     readonly rawDistribution: Distribution;
@@ -19,6 +19,8 @@ export declare class HeliosServer {
     private parseAddress;
     private parseEffectiveJavaOptions;
     private defaultUndefinedJavaOptions;
+    private defaultJavaVersion;
+    private defaultJavaPlatform;
 }
 export declare class HeliosModule {
     readonly rawModule: Module;

@@ -1,132 +1,138 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DistributionAPI = void 0;
-const path_1 = require("path");
-const got_1 = __importDefault(require("got"));
-const LoggerUtil_1 = require("../../util/LoggerUtil");
-const RestResponse_1 = require("../rest/RestResponse");
-const fs_extra_1 = require("fs-extra");
-const DistributionFactory_1 = require("./DistributionFactory");
+const { resolve } = require('path')
+const got = require('got')
+const fs = require('fs-extra')
+const { LoggerUtil } = require('../../util/LoggerUtil')
+const { RestResponseStatus, handleGotError } = require('../rest/RestResponse')
+const { HeliosDistribution } = require('./DistributionFactory')
+
 // TODO Option to check endpoint for hash of distro for local compare
 // Useful if distro is large (MBs)
 class DistributionAPI {
-    launcherDirectory;
-    commonDir;
-    instanceDir;
-    remoteUrl;
-    devMode;
-    static log = LoggerUtil_1.LoggerUtil.getLogger('DistributionAPI');
-    DISTRO_FILE = 'distribution.json';
-    DISTRO_FILE_DEV = 'distribution_dev.json';
-    distroPath;
-    distroDevPath;
-    distribution;
-    rawDistribution;
+
+    static log = LoggerUtil.getLogger('DistributionAPI')
+
+    DISTRO_FILE = 'distribution.json'
+    DISTRO_FILE_DEV = 'distribution_dev.json'
+
+    launcherDirectory
+    commonDir
+    instanceDir
+    remoteUrl
+    devMode
+    distroPath
+    distroDevPath
+    distribution
+    rawDistribution
+
     constructor(launcherDirectory, commonDir, instanceDir, remoteUrl, devMode) {
-        this.launcherDirectory = launcherDirectory;
-        this.commonDir = commonDir;
-        this.instanceDir = instanceDir;
-        this.remoteUrl = remoteUrl;
-        this.devMode = devMode;
-        this.distroPath = (0, path_1.resolve)(launcherDirectory, this.DISTRO_FILE);
-        this.distroDevPath = (0, path_1.resolve)(launcherDirectory, this.DISTRO_FILE_DEV);
+        this.launcherDirectory = launcherDirectory
+        this.commonDir = commonDir
+        this.instanceDir = instanceDir
+        this.remoteUrl = remoteUrl
+        this.devMode = devMode
+        this.distroPath = resolve(launcherDirectory, this.DISTRO_FILE)
+        this.distroDevPath = resolve(launcherDirectory, this.DISTRO_FILE_DEV)
     }
+
     async getDistribution() {
         if (this.rawDistribution == null) {
-            this.rawDistribution = await this.loadDistribution();
-            this.distribution = new DistributionFactory_1.HeliosDistribution(this.rawDistribution, this.commonDir, this.instanceDir);
+            this.rawDistribution = await this.loadDistribution()
+            this.distribution = new HeliosDistribution(this.rawDistribution, this.commonDir, this.instanceDir)
         }
-        return this.distribution;
+        return this.distribution
     }
+
     async getDistributionLocalLoadOnly() {
         if (this.rawDistribution == null) {
-            const x = await this.pullLocal();
+            const x = await this.pullLocal()
             if (x == null) {
-                throw new Error('FATAL: Unable to load distribution from local disk.');
+                throw new Error('FATAL: Unable to load distribution from local disk.')
             }
-            this.rawDistribution = x;
-            this.distribution = new DistributionFactory_1.HeliosDistribution(this.rawDistribution, this.commonDir, this.instanceDir);
+            this.rawDistribution = x
+            this.distribution = new HeliosDistribution(this.rawDistribution, this.commonDir, this.instanceDir)
         }
-        return this.distribution;
+        return this.distribution
     }
+
     async refreshDistributionOrFallback() {
-        const distro = await this._loadDistributionNullable();
+        const distro = await this._loadDistributionNullable()
         if (distro == null) {
-            DistributionAPI.log.warn('Failed to refresh distribution, falling back to current load (if exists).');
-            return this.distribution;
-        }
-        else {
-            this.rawDistribution = distro;
-            this.distribution = new DistributionFactory_1.HeliosDistribution(distro, this.commonDir, this.instanceDir);
-            return this.distribution;
+            DistributionAPI.log.warn('Failed to refresh distribution, falling back to current load (if exists).')
+            return this.distribution
+        } else {
+            this.rawDistribution = distro
+            this.distribution = new HeliosDistribution(distro, this.commonDir, this.instanceDir)
+            return this.distribution
         }
     }
+
     toggleDevMode(dev) {
-        this.devMode = dev;
+        this.devMode = dev
     }
+
     isDevMode() {
-        return this.devMode;
+        return this.devMode
     }
+
     async loadDistribution() {
-        const distro = await this._loadDistributionNullable();
+        const distro = await this._loadDistributionNullable()
         if (distro == null) {
             // TODO Bubble this up nicer
-            throw new Error('FATAL: Unable to load distribution from remote server or local disk.');
+            throw new Error('FATAL: Unable to load distribution from remote server or local disk.')
         }
-        return distro;
+        return distro
     }
+
     async _loadDistributionNullable() {
-        let distro;
+        let distro
         if (!this.devMode) {
-            distro = (await this.pullRemote()).data;
+            distro = (await this.pullRemote()).data
             if (distro == null) {
-                distro = await this.pullLocal();
+                distro = await this.pullLocal()
+            } else {
+                await this.writeDistributionToDisk(distro)
             }
-            else {
-                await this.writeDistributionToDisk(distro);
-            }
+        } else {
+            distro = await this.pullLocal()
         }
-        else {
-            distro = await this.pullLocal();
-        }
-        return distro;
+        return distro
     }
+
     async pullRemote() {
         try {
-            const res = await got_1.default.get(this.remoteUrl, { responseType: 'json' });
+            const res = await got.get(this.remoteUrl, { responseType: 'json' })
             return {
                 data: res.body,
-                responseStatus: RestResponse_1.RestResponseStatus.SUCCESS
-            };
-        }
-        catch (error) {
-            return (0, RestResponse_1.handleGotError)('Pull Remote', error, DistributionAPI.log, () => null);
+                responseStatus: RestResponseStatus.SUCCESS
+            }
+        } catch (error) {
+            return handleGotError('Pull Remote', error, DistributionAPI.log, () => null)
         }
     }
+
     async writeDistributionToDisk(distribution) {
-        await (0, fs_extra_1.writeJson)(this.distroPath, distribution);
+        await fs.writeJson(this.distroPath, distribution)
     }
+
     async pullLocal() {
-        return await this.readDistributionFromFile(!this.devMode ? this.distroPath : this.distroDevPath);
+        return await this.readDistributionFromFile(!this.devMode ? this.distroPath : this.distroDevPath)
     }
+
     async readDistributionFromFile(path) {
-        if (await (0, fs_extra_1.pathExists)(path)) {
-            const raw = await (0, fs_extra_1.readFile)(path, 'utf-8');
+        if (await fs.pathExists(path)) {
+            const raw = await fs.readFile(path, 'utf-8')
             try {
-                return JSON.parse(raw);
+                return JSON.parse(raw)
+            } catch (error) {
+                DistributionAPI.log.error(`Malformed distribution file at ${path}`)
+                return null
             }
-            catch (error) {
-                DistributionAPI.log.error(`Malformed distribution file at ${path}`);
-                return null;
-            }
-        }
-        else {
-            DistributionAPI.log.error(`No distribution file found at ${path}!`);
-            return null;
+        } else {
+            DistributionAPI.log.error(`No distribution file found at ${path}!`)
+            return null
         }
     }
+
 }
-exports.DistributionAPI = DistributionAPI;
+
+module.exports = { DistributionAPI }

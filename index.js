@@ -9,9 +9,9 @@ const isDev                             = require('./app/assets/js/isdev')
 const path                              = require('path')
 const semver                            = require('semver')
 const { pathToFileURL }                 = require('url')
-const { SHELL_OPCODE, CGN_OPCODE, CGN_REPLY_TYPE} = require('./app/assets/js/ipcconstants')
+const { SHELL_OPCODE, CGN_OPCODE } = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
-const deeplink = require('electron-app-universal-protocol-client').default;
+const deeplink = require('electron-app-universal-protocol-client').default
 
 if (!app.requestSingleInstanceLock()) {
     return app.quit()

@@ -10,8 +10,8 @@
  */
 // Requirements
 const ConfigManager          = require('./configmanager')
-const { LoggerUtil }         = require('helios-core')
-const { RestResponseStatus } = require('helios-core/common')
+const { LoggerUtil }         = require('./util/LoggerUtil')
+const { RestResponseStatus } = require('./common')
 const { MojangRestAPI } = require('./mojang')
 
 const log = LoggerUtil.getLogger('AuthManager')

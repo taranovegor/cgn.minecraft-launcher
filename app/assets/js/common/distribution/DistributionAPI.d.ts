@@ -1,4 +1,4 @@
-import { Distribution } from 'helios-distribution-types';
+import { Distribution } from '../../distribution-types';
 import { RestResponse } from '../rest/RestResponse';
 import { HeliosDistribution } from './DistributionFactory';
 export declare class DistributionAPI {
