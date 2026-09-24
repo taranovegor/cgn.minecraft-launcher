@@ -25,7 +25,7 @@ async function downloadQueue(assets, onProgress) {
     }
     const wrap = (asset) => downloadFile(asset.url, asset.path, onEachProgress(asset))
     const q = fastq.promise(wrap, 15)
-    const promises = assets.map(asset => q.push(asset)).reduce((acc, p) => ([...acc, p]), [])
+    const promises = assets.map(asset => q.push(asset))
     await Promise.all(promises)
     return receivedTotals
 }
@@ -88,7 +88,7 @@ async function downloadFile(url, path, onProgress) {
 function retryableError(error) {
     if (error instanceof got.RequestError) {
         // error.name === 'RequestError' means server did not respond.
-        return error.name === 'RequestError' || error instanceof got.ReadError && error.code === 'ECONNRESET'
+        return error.name === 'RequestError' || (error instanceof got.ReadError && error.code === 'ECONNRESET')
     } else {
         return false
     }

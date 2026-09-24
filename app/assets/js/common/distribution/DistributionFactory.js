@@ -81,28 +81,32 @@ class HeliosServer {
     }
 
     parseEffectiveJavaOptions() {
-        const options = this.rawServer.javaOptions?.platformOptions ?? []
-        const mergeableProps = []
-        for (const option of options) {
-            if (option.platform === process.platform) {
-                if (option.architecture === process.arch) {
-                    mergeableProps[0] = option
-                } else {
-                    mergeableProps[1] = option
-                }
+        const platformOptions = this.rawServer.javaOptions?.platformOptions ?? []
+        let archOption = null
+        let platformOption = null
+        for (const option of platformOptions) {
+            if (option.platform !== process.platform) {
+                continue
+            }
+            if (option.architecture === process.arch) {
+                archOption = option
+            } else {
+                platformOption = option
             }
         }
-        mergeableProps[3] = {
+        const serverOption = {
             distribution: this.rawServer.javaOptions?.distribution,
             supported: this.rawServer.javaOptions?.supported,
             suggestedMajor: this.rawServer.javaOptions?.suggestedMajor
         }
         const merged = {}
-        for (let i = mergeableProps.length - 1; i >= 0; i--) {
-            if (mergeableProps[i] != null) {
-                merged.distribution = mergeableProps[i].distribution
-                merged.supported = mergeableProps[i].supported
-                merged.suggestedMajor = mergeableProps[i].suggestedMajor
+        // Lowest to highest precedence. A present option overwrites all three
+        // fields, missing values are filled by the defaults afterwards.
+        for (const option of [serverOption, platformOption, archOption]) {
+            if (option != null) {
+                merged.distribution = option.distribution
+                merged.supported = option.supported
+                merged.suggestedMajor = option.suggestedMajor
             }
         }
         return this.defaultUndefinedJavaOptions(merged)

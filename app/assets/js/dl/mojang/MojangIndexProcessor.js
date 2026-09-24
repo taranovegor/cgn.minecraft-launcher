@@ -9,6 +9,10 @@ const { isLibraryCompatible, getMojangOS } = require('../../common/util/MojangUt
 const { LoggerUtil } = require('../../util/LoggerUtil')
 const { handleGotError } = require('../../common/rest/RestResponse')
 
+function toAsset(id, hash, size, url, path, algo = HashAlgo.SHA1) {
+    return { id, hash, algo, size, url, path }
+}
+
 class MojangIndexProcessor extends IndexProcessor {
 
     static LAUNCHER_JSON_ENDPOINT = 'https://launchermeta.mojang.com/mc/launcher.json'
@@ -172,14 +176,7 @@ class MojangIndexProcessor extends IndexProcessor {
             const path = join(objectDir, hash.substring(0, 2), hash)
             const url = `${MojangIndexProcessor.ASSET_RESOURCE_ENDPOINT}/${hash.substring(0, 2)}/${hash}`
             if (!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
-                notValid.push({
-                    id: assetEntry[0],
-                    hash,
-                    algo: HashAlgo.SHA1,
-                    size: assetEntry[1].size,
-                    url,
-                    path
-                })
+                notValid.push(toAsset(assetEntry[0], hash, assetEntry[1].size, url, path))
             }
         }
         return notValid
@@ -200,14 +197,7 @@ class MojangIndexProcessor extends IndexProcessor {
                 const path = join(libDir, artifact.path)
                 const hash = artifact.sha1
                 if (!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
-                    notValid.push({
-                        id: libEntry.name,
-                        hash,
-                        algo: HashAlgo.SHA1,
-                        size: artifact.size,
-                        url: artifact.url,
-                        path
-                    })
+                    notValid.push(toAsset(libEntry.name, hash, artifact.size, artifact.url, path))
                 }
             }
         }
@@ -219,14 +209,7 @@ class MojangIndexProcessor extends IndexProcessor {
         const versionJarPath = getVersionJarPath(this.commonDir, version)
         const hash = versionJson.downloads.client.sha1
         if (!await validateLocalFile(versionJarPath, HashAlgo.SHA1, hash)) {
-            return [{
-                id: `${version} client`,
-                hash,
-                algo: HashAlgo.SHA1,
-                size: versionJson.downloads.client.size,
-                url: versionJson.downloads.client.url,
-                path: versionJarPath
-            }]
+            return [toAsset(`${version} client`, hash, versionJson.downloads.client.size, versionJson.downloads.client.url, versionJarPath)]
         }
         return []
     }
@@ -236,14 +219,7 @@ class MojangIndexProcessor extends IndexProcessor {
         const path = join(this.assetPath, 'log_configs', logFile.id)
         const hash = logFile.sha1
         if (!await validateLocalFile(path, HashAlgo.SHA1, hash)) {
-            return [{
-                id: logFile.id,
-                hash,
-                algo: HashAlgo.SHA1,
-                size: logFile.size,
-                url: logFile.url,
-                path
-            }]
+            return [toAsset(logFile.id, hash, logFile.size, logFile.url, path)]
         }
         return []
     }

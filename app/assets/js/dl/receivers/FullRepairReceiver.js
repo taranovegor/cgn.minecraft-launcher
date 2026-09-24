@@ -88,7 +88,7 @@ class FullRepairReceiver {
                 completedStages++
                 process.send({ response: 'validateProgress', percent: Math.trunc((completedStages / numStages) * 100) })
             }))
-                .flatMap(asset => asset)
+                .flat()
                 .forEach(asset => assets.push(asset))
         }
         this.assets = assets
