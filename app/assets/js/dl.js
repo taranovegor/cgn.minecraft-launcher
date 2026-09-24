@@ -6,5 +6,5 @@ module.exports = {
     ...require('./dl/IndexProcessor'),
     ...require('./dl/mojang/MojangIndexProcessor'),
     ...require('./dl/distribution/DistributionIndexProcessor'),
-    ...require('./dl/AssetGaurdTransmitter')
+    ...require('./dl/AssetGuardTransmitter')
 }

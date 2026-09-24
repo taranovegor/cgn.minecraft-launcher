@@ -36,6 +36,17 @@ async function getHotSpotSettings(execPath) {
         log.error(error)
         return null
     }
+    return parseHotSpotSettings(stderr)
+}
+
+/**
+ * Parses the stderr output of `java -XshowSettings:properties -version`.
+ * Properties use a 4 space indent, continuation lines use 8 spaces.
+ *
+ * @param {string} stderr The command stderr.
+ * @returns The parsed HotSpot VM properties.
+ */
+function parseHotSpotSettings(stderr) {
     const listProps = [
         'java.library.path'
     ]
@@ -505,103 +516,74 @@ class EnvironmentBasedJavaDiscoverer {
 
 class Win32RegistryJavaDiscoverer {
 
-    discover() {
+    async discover() {
+        const regKeys = [
+            '\\SOFTWARE\\JavaSoft\\Java Runtime Environment', // Java 8 and prior
+            '\\SOFTWARE\\JavaSoft\\Java Development Kit', // Java 8 and prior
+            '\\SOFTWARE\\JavaSoft\\JRE', // Java 9+
+            '\\SOFTWARE\\JavaSoft\\JDK' // Java 9+
+        ]
+        const candidates = new Set()
+        await Promise.all(regKeys.map(regKey => this.discoverKey(regKey, candidates)))
+        return [...candidates]
+    }
+
+    discoverKey(regKey, candidates) {
         return new Promise((resolve) => {
-            const regKeys = [
-                '\\SOFTWARE\\JavaSoft\\Java Runtime Environment', // Java 8 and prior
-                '\\SOFTWARE\\JavaSoft\\Java Development Kit', // Java 8 and prior
-                '\\SOFTWARE\\JavaSoft\\JRE', // Java 9+
-                '\\SOFTWARE\\JavaSoft\\JDK' // Java 9+
-            ]
-            let keysDone = 0
-            const candidates = new Set()
-            for (let i = 0; i < regKeys.length; i++) {
-                const key = new Winreg({
-                    hive: Winreg.HKLM,
-                    key: regKeys[i],
-                    arch: 'x64'
-                })
-                key.keyExists((err, exists) => {
-                    if (exists) {
-                        key.keys((err, javaVers) => {
-                            if (err) {
-                                keysDone++
-                                console.error(err)
-                                // REG KEY DONE
-                                // DUE TO ERROR
-                                if (keysDone === regKeys.length) {
-                                    resolve([...candidates])
-                                }
-                            } else {
-                                if (javaVers.length === 0) {
-                                    // REG KEY DONE
-                                    // NO SUBKEYS
-                                    keysDone++
-                                    if (keysDone === regKeys.length) {
-                                        resolve([...candidates])
-                                    }
-                                } else {
-                                    let numDone = 0
-                                    for (let j = 0; j < javaVers.length; j++) {
-                                        const javaVer = javaVers[j]
-                                        const vKey = javaVer.key.substring(javaVer.key.lastIndexOf('\\') + 1).trim()
-                                        let major = -1
-                                        if (vKey.length > 0) {
-                                            if (isNaN(vKey)) {
-                                                // Should be a semver key.
-                                                major = parseJavaRuntimeVersion(vKey)?.major ?? -1
-                                            } else {
-                                                // This is an abbreviated version, ie 1.8 or 17.
-                                                const asNum = parseFloat(vKey)
-                                                if (asNum < 2) {
-                                                    // 1.x
-                                                    major = asNum % 1 * 10
-                                                } else {
-                                                    major = asNum
-                                                }
-                                            }
-                                        }
-                                        if (major > -1) {
-                                            javaVer.get('JavaHome', (err, res) => {
-                                                const jHome = res.value
-                                                // Exclude 32bit.
-                                                if (!jHome.includes('(x86)')) {
-                                                    candidates.add(jHome)
-                                                }
-                                                // SUBKEY DONE
-                                                numDone++
-                                                if (numDone === javaVers.length) {
-                                                    keysDone++
-                                                    if (keysDone === regKeys.length) {
-                                                        resolve([...candidates])
-                                                    }
-                                                }
-                                            })
-                                        } else {
-                                            // SUBKEY DONE
-                                            // MAJOR VERSION UNPARSEABLE
-                                            numDone++
-                                            if (numDone === javaVers.length) {
-                                                keysDone++
-                                                if (keysDone === regKeys.length) {
-                                                    resolve([...candidates])
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        })
-                    } else {
-                        // REG KEY DONE
-                        // DUE TO NON-EXISTANCE
-                        keysDone++
-                        if (keysDone === regKeys.length) {
-                            resolve([...candidates])
-                        }
+            const key = new Winreg({
+                hive: Winreg.HKLM,
+                key: regKey,
+                arch: 'x64'
+            })
+            key.keyExists((err, exists) => {
+                if (!exists) {
+                    resolve()
+                    return
+                }
+                key.keys(async (err, javaVers) => {
+                    if (err) {
+                        console.error(err)
+                        resolve()
+                        return
                     }
+                    await Promise.all(javaVers.map(javaVer => this.discoverVersion(javaVer, candidates)))
+                    resolve()
                 })
+            })
+        })
+    }
+
+    discoverVersion(javaVer, candidates) {
+        return new Promise((resolve) => {
+            const vKey = javaVer.key.substring(javaVer.key.lastIndexOf('\\') + 1).trim()
+            let major = -1
+            if (vKey.length > 0) {
+                if (isNaN(vKey)) {
+                    // Should be a semver key.
+                    major = parseJavaRuntimeVersion(vKey)?.major ?? -1
+                } else {
+                    // This is an abbreviated version, ie 1.8 or 17.
+                    const asNum = parseFloat(vKey)
+                    if (asNum < 2) {
+                        // 1.x
+                        major = asNum % 1 * 10
+                    } else {
+                        major = asNum
+                    }
+                }
             }
+            if (major <= -1) {
+                resolve()
+                return
+            }
+            javaVer.get('JavaHome', (err, res) => {
+                const jHome = res.value
+                // Exclude 32bit.
+                if (!jHome.includes('(x86)')) {
+                    candidates.add(jHome)
+                }
+                resolve()
+            })
         })
     }
 

@@ -33,21 +33,15 @@ async function downloadQueue(assets, onProgress) {
 async function downloadFile(url, path, onProgress) {
     await fs.ensureDir(dirname(path))
     const MAX_RETRIES = 10
-    let fileWriterStream = null // The write stream.
-    let retryCount = 0 // The number of retries attempted.
-    let error = null // The caught error.
-    let retry = false // Should we retry.
-    let rethrow = false // Should we throw an error.
 
     // Got's streaming retry API is nonexistant and their "example" is egregious.
     // To use their "api" you need to commit yourself to recursive callback hell.
     // No thank you, I prefer this simpler, non error-prone logic.
-    do {
-        retry = false
-        rethrow = false
+    for (let retryCount = 0; ; retryCount++) {
         if (retryCount > 0) {
             log.debug(`Retry attempt #${retryCount} for ${url}.`)
         }
+        let fileWriterStream = null // The write stream.
         try {
             const downloadStream = got.stream(url)
             fileWriterStream = createWriteStream(path)
@@ -55,33 +49,27 @@ async function downloadFile(url, path, onProgress) {
                 downloadStream.on('downloadProgress', (progress) => onProgress(progress))
             }
             await pipeline(downloadStream, fileWriterStream)
-        } catch (err) {
-            error = err
-            retryCount++
-            rethrow = true
-            // For now, only retry timeouts.
-            retry = retryCount <= MAX_RETRIES && retryableError(error)
+            return
+        } catch (error) {
             if (fileWriterStream) {
                 fileWriterStream.destroy()
             }
-            if (onProgress && retry) {
-                // Reset progress on this asset. since we're going to retry.
+            if (retryCount >= MAX_RETRIES || !retryableError(error)) {
+                if (retryCount >= MAX_RETRIES) {
+                    log.error(`Maximum retries attempted for ${url}. Rethrowing exception.`)
+                } else {
+                    log.error(`Unknown or unretryable exception thrown during request to ${url}. Rethrowing exception.`)
+                }
+                throw error
+            }
+            if (onProgress) {
+                // Reset progress on this asset since we're going to retry.
                 onProgress({ transferred: 0, percent: 0, total: 0 })
             }
-            if (retry) {
-                // Wait one second before retrying.
-                // This can become an exponential backoff, but I see no need for that right now.
-                await sleep(1000)
-            }
+            // Wait one second before retrying.
+            // This can become an exponential backoff, but I see no need for that right now.
+            await sleep(1000)
         }
-    } while (retry)
-    if (rethrow && error) {
-        if (retryCount > MAX_RETRIES) {
-            log.error(`Maximum retries attempted for ${url}. Rethrowing exception.`)
-        } else {
-            log.error(`Unknown or unretryable exception thrown during request to ${url}. Rethrowing exception.`)
-        }
-        throw error
     }
 }
 
