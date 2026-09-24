@@ -1,6 +1,13 @@
-name: Build
+name: Release
 
-on: push
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
@@ -8,10 +15,12 @@ jobs:
 
     permissions:
       contents: write
+      actions: write
 
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-2025, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: Check out Git repository
@@ -22,17 +31,37 @@ jobs:
         with:
           node-version: 22
 
+      - name: Verify tag matches package.json version
+        id: verify
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VERSION="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$VERSION" ]; then
+            echo "::warning::Tag ${GITHUB_REF_NAME} does not match package.json version ${VERSION}. Stopping the run."
+            echo "**Tag \`${GITHUB_REF_NAME}\` does not match version \`${VERSION}\` — release stopped.**" >> "$GITHUB_STEP_SUMMARY"
+            echo "match=false" >> "$GITHUB_OUTPUT"
+            gh run cancel "$GITHUB_RUN_ID" || true
+            exit 0
+          fi
+          echo "match=true" >> "$GITHUB_OUTPUT"
+
       - name: Set up Python
+        if: steps.verify.outputs.match == 'true'
         uses: actions/setup-python@v6
         with:
           python-version: 3.x
 
       - name: Install Dependencies
+        if: steps.verify.outputs.match == 'true'
         run: npm ci
         shell: bash
 
-      - name: Build
+      - name: Build and publish
+        if: steps.verify.outputs.match == 'true'
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npm run dist
+        run: npm run dist -- --publish always
         shell: bash
