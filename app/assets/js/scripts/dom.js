@@ -21,12 +21,22 @@ function parseOptions(arg1, arg2) {
     }
 }
 
+// Removes an inline `display: none` so the element falls back to its
+// stylesheet display. If a stylesheet still hides it (e.g. a `#main`
+// rule), fall back to `block`, mirroring jQuery's show/fadeIn.
+function reveal(el) {
+    el.style.display = ''
+    if (getComputedStyle(el).display === 'none') {
+        el.style.display = 'block'
+    }
+}
+
 function show(target, arg1, arg2) {
     const el = resolveTarget(target)
     if (el == null) return
     const { start, complete } = parseOptions(arg1, arg2)
     if (start) start()
-    el.style.display = ''
+    reveal(el)
     if (complete) complete()
 }
 
@@ -44,7 +54,7 @@ function fadeIn(target, arg1, arg2) {
     if (el == null) return Promise.resolve()
     const { duration, start, complete } = parseOptions(arg1, arg2)
     if (start) start()
-    el.style.display = ''
+    reveal(el)
     const animation = el.animate([{ opacity: 0 }, { opacity: 1 }], { duration })
     return animation.finished
         .then(() => {
