@@ -366,7 +366,7 @@ class ProcessBuilder {
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=HeliosLauncher')
+            args.push('-Xdock:name=CraftGameLauncher')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))
@@ -399,7 +399,7 @@ class ProcessBuilder {
         let nativesExtractPath = tempNativePath
 
         // JVM Arguments First
-        let args = this.vanillaManifest.arguments.jvm
+        let args = [...this.vanillaManifest.arguments.jvm]
 
         // Debug securejarhandler
         // args.push('-Dbsl.debug=true')
@@ -416,7 +416,7 @@ class ProcessBuilder {
 
         // Java Arguments
         if(process.platform === 'darwin'){
-            args.push('-Xdock:name=CraftGame')
+            args.push('-Xdock:name=CraftGameLauncher')
             args.push('-Xdock:icon=' + path.join(__dirname, '..', 'images', 'minecraft.icns'))
         }
         args.push('-Xmx' + ConfigManager.getMaxRAM(this.server.rawServer.id))
@@ -542,7 +542,7 @@ class ProcessBuilder {
                             break
                         }
                         case 'launcher_name':
-                            val = args[i].replace(argDiscovery, 'CraftGame Launcher')
+                            val = args[i].replace(argDiscovery, 'CraftGameLauncher')
                             break
                         case 'launcher_version':
                             val = args[i].replace(argDiscovery, this.launcherVersion)

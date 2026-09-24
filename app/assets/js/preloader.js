@@ -15,10 +15,8 @@ logger.info('Loading..')
 // Load ConfigManager
 ConfigManager.load()
 
-// Yuck!
-// TODO Fix this
-DistroAPI['commonDir'] = ConfigManager.getCommonDirectory()
-DistroAPI['instanceDir'] = ConfigManager.getInstanceDirectory()
+// Inject the directories once the config is loaded.
+DistroAPI.setDirectories(ConfigManager.getCommonDirectory(), ConfigManager.getInstanceDirectory())
 
 // Load Strings
 LangLoader.setupLanguage()

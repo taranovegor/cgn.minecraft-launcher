@@ -15,6 +15,7 @@ export declare class DistributionAPI {
     private distribution;
     private rawDistribution;
     constructor(launcherDirectory: string, commonDir: string, instanceDir: string, remoteUrl: string, devMode: boolean);
+    setDirectories(commonDir: string, instanceDir: string): void;
     getDistribution(): Promise<HeliosDistribution>;
     getDistributionLocalLoadOnly(): Promise<HeliosDistribution>;
     refreshDistributionOrFallback(): Promise<HeliosDistribution>;

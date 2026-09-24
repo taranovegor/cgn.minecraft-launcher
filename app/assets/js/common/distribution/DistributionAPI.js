@@ -34,6 +34,11 @@ class DistributionAPI {
         this.distroDevPath = resolve(launcherDirectory, this.DISTRO_FILE_DEV)
     }
 
+    setDirectories(commonDir, instanceDir) {
+        this.commonDir = commonDir
+        this.instanceDir = instanceDir
+    }
+
     async getDistribution() {
         if (this.rawDistribution == null) {
             this.rawDistribution = await this.loadDistribution()
