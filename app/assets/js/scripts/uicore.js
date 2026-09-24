@@ -35,7 +35,6 @@ webFrame.setZoomLevel(0)
 webFrame.setVisualZoomLevelLimits(1, 1)
 
 // Initialize auto updates in production environments.
-let updateCheckListener
 if(!isDev){
     ipcRenderer.on('autoUpdateNotification', (event, arg, info) => {
         switch(arg){
@@ -67,7 +66,7 @@ if(!isDev){
                 settingsUpdateButtonStatus(Lang.queryJS('uicore.autoUpdate.checkForUpdatesButton'))
                 break
             case 'ready':
-                updateCheckListener = setInterval(() => {
+                setInterval(() => {
                     ipcRenderer.send('autoUpdateAction', 'checkForUpdate')
                 }, 1800000)
                 ipcRenderer.send('autoUpdateAction', 'checkForUpdate')

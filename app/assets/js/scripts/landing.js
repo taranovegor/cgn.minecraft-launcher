@@ -2,34 +2,11 @@
  * Script for landing.ejs
  */
 // Requirements
-const { URL }                 = require('url')
-const {
-    MojangRestAPI,
-    getServerStatus
-}                             = require('./assets/js/mojang')
-const {
-    RestResponseStatus,
-    isDisplayableError,
-    validateLocalFile
-}                             = require('./assets/js/common')
-const {
-    FullRepair,
-    DistributionIndexProcessor,
-    MojangIndexProcessor,
-    downloadFile
-}                             = require('./assets/js/dl')
+const { getServerStatus } = require('./assets/js/mojang')
 const {
     validateSelectedJvm,
-    ensureJavaDirIsRoot,
-    javaExecFromRoot,
-    discoverBestJvmInstallation,
-    latestOpenJDK,
-    extractJdk
+    ensureJavaDirIsRoot
 }                             = require('./assets/js/java')
-
-// Internal Requirements
-const DiscordWrapper          = require('./assets/js/discordwrapper')
-const ProcessBuilder          = require('./assets/js/processbuilder')
 
 // Launch Elements
 const launch_content          = document.getElementById('launch_content')
@@ -200,7 +177,7 @@ const refreshServerStatus = async (fade = false) => {
 // Server Status is refreshed in uibinder.js on distributionIndexDone.
 
 // Set refresh rate to once every 5 minutes.
-let serverStatusListener = setInterval(() => refreshServerStatus(true), 300000)
+setInterval(() => refreshServerStatus(true), 300000)
 
 /**
  * Shows an error overlay, toggles off the launch area.

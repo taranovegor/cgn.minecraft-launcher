@@ -7,6 +7,7 @@ const baseRules = {
     'linebreak-style': ['error', 'unix'],
     quotes: ['error', 'single', { allowTemplateLiterals: true }],
     semi: ['error', 'never'],
+    eqeqeq: ['error', 'always', { null: 'ignore' }],
     'no-var': ['error'],
     'no-console': [0],
     'no-empty': ['error', { allowEmptyCatch: true }],

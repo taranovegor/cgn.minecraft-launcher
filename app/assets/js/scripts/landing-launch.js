@@ -1,3 +1,12 @@
+// Requirements
+const {
+    FullRepair,
+    DistributionIndexProcessor,
+    MojangIndexProcessor
+} = require('./assets/js/dl')
+const DiscordWrapper = require('./assets/js/discordwrapper')
+const ProcessBuilder = require('./assets/js/processbuilder')
+
 // Keep reference to Minecraft Process
 let proc
 // Is DiscordRPC enabled

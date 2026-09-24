@@ -1,3 +1,13 @@
+// Requirements
+const { validateLocalFile } = require('./assets/js/common')
+const { downloadFile } = require('./assets/js/dl')
+const {
+    javaExecFromRoot,
+    discoverBestJvmInstallation,
+    latestOpenJDK,
+    extractJdk
+} = require('./assets/js/java')
+
 /* System (Java) Scan */
 
 /**
@@ -98,7 +108,7 @@ async function downloadJava(effectiveJavaOptions, launchAfter = true) {
     })
     setDownloadPercentage(100)
 
-    if(received != asset.size) {
+    if(received !== asset.size) {
         loggerLanding.warn(`Java Download: Expected ${asset.size} bytes but received ${received}`)
         if(!await validateLocalFile(asset.path, asset.algo, asset.hash)) {
             log.error(`Hashes do not match, ${asset.id} may be corrupted.`)

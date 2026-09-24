@@ -40,11 +40,11 @@ class ServerBoundPacket {
         do {
             let temp = value & 0b01111111
             value >>>= 7
-            if (value != 0) {
+            if (value !== 0) {
                 temp |= 0b10000000
             }
             this.writeBytes(temp)
-        } while (value != 0)
+        } while (value !== 0)
         return this
     }
 
@@ -111,7 +111,7 @@ class ClientBoundPacket {
             if (numRead > 5) {
                 throw new Error('VarInt is too big')
             }
-        } while ((read & 0b10000000) != 0)
+        } while ((read & 0b10000000) !== 0)
         return result
     }
 
@@ -134,7 +134,7 @@ class ProtocolUtils {
         do {
             value >>>= 7
             size++
-        } while (value != 0)
+        } while (value !== 0)
         return size
     }
 

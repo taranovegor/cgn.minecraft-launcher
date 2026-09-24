@@ -3,7 +3,6 @@
  * Loaded after core UI functions are initialized in uicore.js.
  */
 // Requirements
-const path          = require('path')
 const { Type }      = require('./assets/js/distribution-types')
 
 const AuthManager   = require('./assets/js/authmanager')
@@ -414,11 +413,3 @@ ipcRenderer.on('distributionIndexDone', async (event, res) => {
     }
 })
 
-// Util for development
-async function devModeToggle() {
-    DistroAPI.toggleDevMode(true)
-    const data = await DistroAPI.refreshDistributionOrFallback()
-    ensureJavaSettings(data)
-    updateSelectedServer(data.servers[0])
-    syncModConfigurations(data)
-}

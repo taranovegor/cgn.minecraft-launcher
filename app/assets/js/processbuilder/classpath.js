@@ -110,7 +110,7 @@ module.exports = {
                     // const os = regexTest[1]
                     const arch = regexTest[2] ?? 'x64'
 
-                    if(arch != process.arch) {
+                    if(arch !== process.arch) {
                         continue
                     }
 

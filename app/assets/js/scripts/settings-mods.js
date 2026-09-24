@@ -1,3 +1,4 @@
+const path = require('path')
 const DropinModUtil = require('./assets/js/dropinmodutil')
 
 /**
@@ -265,15 +266,6 @@ Array.from(document.getElementsByClassName('settingsSwitchServerButton')).forEac
         await toggleServerSelection(true)
     })
 })
-
-/**
- * Save mod configuration for the current selected server.
- */
-function saveAllModConfigurations(){
-    saveModConfiguration()
-    ConfigManager.save()
-    // saveDropinModConfiguration()
-}
 
 /**
  * Function to refresh the current tab whenever the selected

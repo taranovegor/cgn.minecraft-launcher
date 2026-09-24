@@ -4,15 +4,6 @@
 
 /* Overlay Wrapper Functions */
 
-/**
- * Check to see if the overlay is visible.
- *
- * @returns {boolean} Whether or not the overlay is visible.
- */
-function isOverlayVisible(){
-    return document.getElementById('main').hasAttribute('overlay')
-}
-
 let overlayHandlerContent
 
 /**
@@ -250,25 +241,6 @@ function setServerListingHandlers(){
     })
 }
 
-function setAccountListingHandlers(){
-    const listings = Array.from(document.getElementsByClassName('accountListing'))
-    listings.map((val) => {
-        val.onclick = e => {
-            if(val.hasAttribute('selected')){
-                return
-            }
-            const cListings = document.getElementsByClassName('accountListing')
-            for(let i=0; i<cListings.length; i++){
-                if(cListings[i].hasAttribute('selected')){
-                    cListings[i].removeAttribute('selected')
-                }
-            }
-            val.setAttribute('selected', '')
-            document.activeElement.blur()
-        }
-    })
-}
-
 async function populateServerListings(){
     const distro = await DistroAPI.getDistribution()
     const giaSel = ConfigManager.getSelectedServer()
@@ -301,26 +273,7 @@ async function populateServerListings(){
 
 }
 
-function populateAccountListings(){
-    const accountsObj = ConfigManager.getAuthAccounts()
-    const accounts = Array.from(Object.keys(accountsObj), v=>accountsObj[v])
-    let htmlString = ''
-    for(let i=0; i<accounts.length; i++){
-        htmlString += `<button class="accountListing" uuid="${accounts[i].uuid}" ${i===0 ? 'selected' : ''}>
-            <img src="https://mc-heads.net/head/${accounts[i].uuid}/40">
-            <div class="accountListingName">${accounts[i].displayName}</div>
-        </button>`
-    }
-    document.getElementById('accountSelectListScrollable').innerHTML = htmlString
-
-}
-
 async function prepareServerSelectionList(){
     await populateServerListings()
     setServerListingHandlers()
-}
-
-function prepareAccountSelectionList(){
-    populateAccountListings()
-    setAccountListingHandlers()
 }

@@ -4,8 +4,6 @@ const loginOptionsCancelButton = document.getElementById('loginOptionCancelButto
 
 const { WEBSITE_AUTH } = require('./assets/js/endpoints')
 
-let loginOptionsCancellable = false
-
 let loginOptionsViewOnLoginSuccess
 let loginOptionsViewOnLoginCancel
 let loginOptionsViewOnCancel

@@ -16,7 +16,7 @@ const RestResponseStatus = {
 }
 
 function isDisplayableError(it) {
-    return typeof it == 'object'
+    return typeof it === 'object'
         && it != null
         && Object.prototype.hasOwnProperty.call(it, 'title')
         && Object.prototype.hasOwnProperty.call(it, 'desc')

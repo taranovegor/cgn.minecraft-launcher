@@ -42,7 +42,7 @@ function bindFileSelectors(){
 
         ele.onclick = async e => {
             const isJavaExecSel = ele.id === 'settingsJavaExecSel'
-            const directoryDialog = ele.hasAttribute('dialogDirectory') && ele.getAttribute('dialogDirectory') == 'true'
+            const directoryDialog = ele.hasAttribute('dialogDirectory') && ele.getAttribute('dialogDirectory') === 'true'
             const properties = directoryDialog ? ['openDirectory', 'createDirectory'] : ['openFile']
 
             const options = {

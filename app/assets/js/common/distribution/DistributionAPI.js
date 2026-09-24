@@ -71,10 +71,6 @@ class DistributionAPI {
         }
     }
 
-    toggleDevMode(dev) {
-        this.devMode = dev
-    }
-
     isDevMode() {
         return this.devMode
     }

@@ -13,8 +13,6 @@ const loginEmailError       = document.getElementById('loginEmailError')
 const loginUsername         = document.getElementById('loginUsername')
 const loginPasswordError    = document.getElementById('loginPasswordError')
 const loginPassword         = document.getElementById('loginPassword')
-const checkmarkContainer    = document.getElementById('checkmarkContainer')
-const loginRememberOption   = document.getElementById('loginRememberOption')
 const loginButton           = document.getElementById('loginButton')
 const loginForm             = document.getElementById('loginForm')
 
@@ -39,7 +37,7 @@ function showError(element, value){
  * @param {HTMLElement} element The element to shake.
  */
 function shakeError(element){
-    if(element.style.opacity == 1){
+    if(element.style.opacity === '1'){
         element.classList.remove('shake')
         void element.offsetWidth
         element.classList.add('shake')
@@ -117,39 +115,6 @@ function loginDisabled(v){
     if(loginButton.disabled !== v){
         loginButton.disabled = v
     }
-}
-
-/**
- * Enable or disable loading elements.
- *
- * @param {boolean} v True to enable, false to disable.
- */
-function loginLoading(v){
-    if(v){
-        loginButton.setAttribute('loading', v)
-        loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.login'), Lang.queryJS('login.loggingIn'))
-    } else {
-        loginButton.removeAttribute('loading')
-        loginButton.innerHTML = loginButton.innerHTML.replace(Lang.queryJS('login.loggingIn'), Lang.queryJS('login.login'))
-    }
-}
-
-/**
- * Enable or disable login form.
- *
- * @param {boolean} v True to enable, false to disable.
- */
-function formDisabled(v){
-    loginDisabled(v)
-    loginCancelButton.disabled = v
-    loginUsername.disabled = v
-    loginPassword.disabled = v
-    if(v){
-        checkmarkContainer.setAttribute('disabled', v)
-    } else {
-        checkmarkContainer.removeAttribute('disabled')
-    }
-    loginRememberOption.disabled = v
 }
 
 let loginViewOnSuccess = VIEWS.landing
