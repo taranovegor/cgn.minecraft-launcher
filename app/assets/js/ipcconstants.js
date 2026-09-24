@@ -3,11 +3,6 @@ exports.CGN_OPCODE = {
     ON_LOGIN: 'CGN_ON_LOGIN',
 }
 
-exports.CGN_REPLY_TYPE = {
-    SUCCESS: 'CGN_AUTH_REPLY_SUCCESS',
-    ERROR: 'CGN_AUTH_REPLY_ERROR'
-}
-
 exports.SHELL_OPCODE = {
     TRASH_ITEM: 'TRASH_ITEM'
 }

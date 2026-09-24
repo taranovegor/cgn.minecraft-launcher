@@ -41,7 +41,6 @@ exports.setDataDirectory = function(dataDirectory){
 
 const configPath = path.join(exports.getLauncherDirectory(), 'config.json')
 const configPathLEGACY = path.join(dataPath, 'config.json')
-const firstLaunch = !fs.existsSync(configPath) && !fs.existsSync(configPathLEGACY)
 
 exports.getAbsoluteMinRAM = function(ram){
     if(ram?.minimum != null) {
@@ -155,13 +154,6 @@ exports.load = function(){
 }
 
 /**
- * @returns {boolean} Whether or not the manager has been loaded.
- */
-exports.isLoaded = function(){
-    return config != null
-}
-
-/**
  * Validate that the destination object has at least every field
  * present in the source object. Assign a default value otherwise.
  *
@@ -186,16 +178,6 @@ function validateKeySet(srcObj, destObj){
 }
 
 /**
- * Check to see if this is the first time the user has launched the
- * application. This is determined by the existance of the data path.
- *
- * @returns {boolean} True if this is the first launch, otherwise false.
- */
-exports.isFirstLaunch = function(){
-    return firstLaunch
-}
-
-/**
  * Returns the name of the folder in the OS temp directory which we
  * will use to extract and store native dependencies for game launch.
  *
@@ -206,34 +188,6 @@ exports.getTempNativeFolder = function(){
 }
 
 // System Settings (Unconfigurable on UI)
-
-/**
- * Retrieve the news cache to determine
- * whether or not there is newer news.
- *
- * @returns {Object} The news cache object.
- */
-exports.getNewsCache = function(){
-    return config.newsCache
-}
-
-/**
- * Set the new news cache object.
- *
- * @param {Object} newsCache The new news cache object.
- */
-exports.setNewsCache = function(newsCache){
-    config.newsCache = newsCache
-}
-
-/**
- * Set whether or not the news has been dismissed (checked)
- *
- * @param {boolean} dismissed Whether or not the news has been dismissed (checked).
- */
-exports.setNewsCacheDismissed = function(dismissed){
-    config.newsCache.dismissed = dismissed
-}
 
 /**
  * Retrieve the common directory for shared
@@ -300,17 +254,6 @@ exports.setSelectedServer = function(serverID){
  */
 exports.getAuthAccounts = function(){
     return config.authenticationDatabase
-}
-
-/**
- * Returns the authenticated account with the given uuid. Value may
- * be null.
- *
- * @param {string} uuid The uuid of the authenticated account.
- * @returns {Object} The authenticated account with the given uuid.
- */
-exports.getAuthAccount = function(uuid){
-    return config.authenticationDatabase[uuid]
 }
 
 /**
@@ -402,15 +345,6 @@ exports.setSelectedAccount = function(uuid){
         config.selectedAccount = uuid
     }
     return authAcc
-}
-
-/**
- * Get an array of each mod configuration currently stored.
- *
- * @returns {Array.<Object>} An array of each stored mod configuration.
- */
-exports.getModConfigurations = function(){
-    return config.modConfigurations
 }
 
 /**

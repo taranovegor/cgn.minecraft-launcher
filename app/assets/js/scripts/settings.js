@@ -3,7 +3,7 @@ const os     = require('os')
 const semver = require('semver')
 
 const DropinModUtil  = require('./assets/js/dropinmodutil')
-const { CGN_OPCODE, MSFT_OPCODE, CGN_REPLY_TYPE, MSFT_REPLY_TYPE, MSFT_ERROR } = require('./assets/js/ipcconstants')
+const { CGN_OPCODE } = require('./assets/js/ipcconstants')
 
 const settingsState = {
     invalid: new Set()
@@ -339,9 +339,6 @@ settingsNavDone.onclick = () => {
  * Account Management Tab
  */
 
-const msftLoginLogger = LoggerUtil.getLogger('Microsoft Login')
-const msftLogoutLogger = LoggerUtil.getLogger('Microsoft Logout')
-
 // Bind the add mojang account button.
 // document.getElementById('settingsAddMojangAccount').onclick = (e) => {
 //     switchView(getCurrentView(), VIEWS.login, 500, 500, () => {
@@ -437,7 +434,6 @@ function processLogOut(val, isLastAccount){
     switchView(getCurrentView(), VIEWS.loginOptions)
 }
 
-// const settingsCurrentMicrosoftAccounts = document.getElementById('settingsCurrentMicrosoftAccounts')
 const settingsCurrentMojangAccounts = document.getElementById('settingsCurrentMojangAccounts')
 
 /**
