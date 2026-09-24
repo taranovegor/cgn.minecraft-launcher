@@ -158,9 +158,9 @@ let loginViewCancelHandler
 
 function loginCancelEnabled(val){
     if(val){
-        $(loginCancelContainer).show()
+        dom.show(loginCancelContainer)
     } else {
-        $(loginCancelContainer).hide()
+        dom.hide(loginCancelContainer)
     }
 }
 

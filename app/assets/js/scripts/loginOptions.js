@@ -13,9 +13,9 @@ let loginOptionsViewCancelHandler
 
 function loginOptionsCancelEnabled(val){
     if(val){
-        $(loginOptionsCancelContainer).show()
+        dom.show(loginOptionsCancelContainer)
     } else {
-        $(loginOptionsCancelContainer).hide()
+        dom.hide(loginOptionsCancelContainer)
     }
 }
 

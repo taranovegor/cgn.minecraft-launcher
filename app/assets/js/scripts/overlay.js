@@ -77,15 +77,16 @@ function toggleOverlay(toggleState, dismissable = false, content = 'overlayConte
     if(toggleState){
         document.getElementById('main').setAttribute('overlay', true)
         // Make things untabbable.
-        $('#main *').attr('tabindex', '-1')
-        $('#' + content).parent().children().hide()
-        $('#' + content).show()
+        document.querySelectorAll('#main *').forEach(el => el.setAttribute('tabindex', '-1'))
+        const contentEl = document.getElementById(content)
+        Array.from(contentEl.parentElement.children).forEach(el => { el.style.display = 'none' })
+        dom.show(contentEl)
         if(dismissable){
-            $('#overlayDismiss').show()
+            dom.show('#overlayDismiss')
         } else {
-            $('#overlayDismiss').hide()
+            dom.hide('#overlayDismiss')
         }
-        $('#overlayContainer').fadeIn({
+        dom.fadeIn('#overlayContainer', {
             duration: 250,
             start: () => {
                 if(getCurrentView() === VIEWS.settings){
@@ -96,8 +97,8 @@ function toggleOverlay(toggleState, dismissable = false, content = 'overlayConte
     } else {
         document.getElementById('main').removeAttribute('overlay')
         // Make things tabbable.
-        $('#main *').removeAttr('tabindex')
-        $('#overlayContainer').fadeOut({
+        document.querySelectorAll('#main *').forEach(el => el.removeAttribute('tabindex'))
+        dom.fadeOut('#overlayContainer', {
             duration: 250,
             start: () => {
                 if(getCurrentView() === VIEWS.settings){
@@ -105,12 +106,13 @@ function toggleOverlay(toggleState, dismissable = false, content = 'overlayConte
                 }
             },
             complete: () => {
-                $('#' + content).parent().children().hide()
-                $('#' + content).show()
+                const contentEl = document.getElementById(content)
+                Array.from(contentEl.parentElement.children).forEach(el => { el.style.display = 'none' })
+                dom.show(contentEl)
                 if(dismissable){
-                    $('#overlayDismiss').show()
+                    dom.show('#overlayDismiss')
                 } else {
-                    $('#overlayDismiss').hide()
+                    dom.hide('#overlayDismiss')
                 }
             }
         })
@@ -224,8 +226,8 @@ document.getElementById('serverSelectCancel').addEventListener('click', () => {
 })
 
 document.getElementById('accountSelectCancel').addEventListener('click', () => {
-    $('#accountSelectContent').fadeOut(250, () => {
-        $('#overlayContent').fadeIn(250)
+    dom.fadeOut('#accountSelectContent', 250, () => {
+        dom.fadeIn('#overlayContent', 250)
     })
 })
 

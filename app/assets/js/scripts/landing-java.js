@@ -37,7 +37,7 @@ async function asyncSystemScan(effectiveJavaOptions, launchAfter = true){
             }
         })
         setDismissHandler(() => {
-            $('#overlayContent').fadeOut(250, () => {
+            dom.fadeOut('#overlayContent', 250, () => {
                 //$('#overlayDismiss').toggle(false)
                 setOverlayContent(
                     Lang.queryJS('landing.systemScan.javaRequired', { 'major': effectiveJavaOptions.suggestedMajor }),
@@ -54,7 +54,7 @@ async function asyncSystemScan(effectiveJavaOptions, launchAfter = true){
 
                     asyncSystemScan(effectiveJavaOptions, launchAfter)
                 })
-                $('#overlayContent').fadeIn(250)
+                dom.fadeIn('#overlayContent', 250)
             })
         })
         toggleOverlay(true, true)

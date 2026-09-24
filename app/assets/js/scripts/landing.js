@@ -185,10 +185,10 @@ const refreshServerStatus = async (fade = false) => {
         loggerLanding.debug(err)
     }
     if(fade){
-        $('#server_status_wrapper').fadeOut(250, () => {
+        dom.fadeOut('#server_status_wrapper', 250, () => {
             document.getElementById('landingPlayerLabel').innerHTML = pLabel
             document.getElementById('player_count').innerHTML = pVal
-            $('#server_status_wrapper').fadeIn(500)
+            dom.fadeIn('#server_status_wrapper', 500)
         })
     } else {
         document.getElementById('landingPlayerLabel').innerHTML = pLabel

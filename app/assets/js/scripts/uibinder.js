@@ -40,9 +40,9 @@ let currentView
  */
 function switchView(current, next, currentFadeTime = 500, nextFadeTime = 500, onCurrentFade = () => {}, onNextFade = () => {}){
     currentView = next
-    $(`${current}`).fadeOut(currentFadeTime, async () => {
+    dom.fadeOut(current, currentFadeTime, async () => {
         await onCurrentFade()
-        $(`${next}`).fadeIn(nextFadeTime, async () => {
+        dom.fadeIn(next, nextFadeTime, async () => {
             await onNextFade()
         })
     })
@@ -76,7 +76,7 @@ async function showMainUI(data){
     setTimeout(() => {
         document.getElementById('frameBar').style.backgroundColor = 'rgba(0, 0, 0, 0.5)'
         document.body.style.backgroundImage = `url('${BACKGROUND}')`
-        $('#main').show()
+        dom.show('#main')
 
         const isLoggedIn = undefined !== ConfigManager.getAccount()
 
@@ -88,18 +88,18 @@ async function showMainUI(data){
 
         if(isLoggedIn){
             currentView = VIEWS.landing
-            $(VIEWS.landing).fadeIn(1000)
+            dom.fadeIn(VIEWS.landing, 1000)
         } else {
             loginOptionsCancelEnabled(false)
             loginOptionsViewOnLoginSuccess = VIEWS.landing
             loginOptionsViewOnLoginCancel = VIEWS.loginOptions
             currentView = VIEWS.loginOptions
-            $(VIEWS.loginOptions).fadeIn(1000)
+            dom.fadeIn(VIEWS.loginOptions, 1000)
         }
 
         setTimeout(() => {
-            $('#loadingContainer').fadeOut(500, () => {
-                $('#loadSpinnerImage').removeClass('rotating')
+            dom.fadeOut('#loadingContainer', 500, () => {
+                document.getElementById('loadSpinnerImage').classList.remove('rotating')
             })
         }, 250)
 
@@ -108,7 +108,7 @@ async function showMainUI(data){
 
 function showFatalStartupError(){
     setTimeout(() => {
-        $('#loadingContainer').fadeOut(250, () => {
+        dom.fadeOut('#loadingContainer', 250, () => {
             document.getElementById('overlayContainer').style.background = 'none'
             setOverlayContent(
                 Lang.queryJS('uibinder.startup.fatalErrorTitle'),

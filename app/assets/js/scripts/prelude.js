@@ -1,5 +1,4 @@
 // Shared renderer dependencies.
 // This script must be loaded before any other renderer script so that
-// `$` and `LoggerUtil` are available on the window global.
-window.$ = require('jquery')
+// `LoggerUtil` is available on the window global.
 window.LoggerUtil = require('./assets/js/util/LoggerUtil').LoggerUtil

@@ -188,9 +188,12 @@ document.addEventListener('readystatechange', function () {
 /**
  * Open web links in the user's default browser.
  */
-$(document).on('click', 'a[href^="http"]', function(event) {
-    event.preventDefault()
-    shell.openExternal(this.href)
+document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href^="http"]')
+    if(link != null){
+        event.preventDefault()
+        shell.openExternal(link.href)
+    }
 })
 
 /**

@@ -60,29 +60,40 @@ function populateAboutVersionInformation(){
  * of the current version. This value is displayed on the UI.
  */
 function populateReleaseNotes(){
-    $.ajax({
-        url: 'https://github.com/taranovegor/cgn.minecraft-launcher/releases.atom',
-        success: (data) => {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 2500)
+    fetch('https://github.com/taranovegor/cgn.minecraft-launcher/releases.atom', { signal: controller.signal })
+        .then(response => response.text())
+        .then((data) => {
             const version = 'v' + remote.app.getVersion()
-            const entries = $(data).find('entry')
+            const doc = new DOMParser().parseFromString(data, 'application/xml')
+            const entries = doc.getElementsByTagName('entry')
 
             for(let i=0; i<entries.length; i++){
-                const entry = $(entries[i])
-                let id = entry.find('id').text()
+                const entry = entries[i]
+                const idEl = entry.getElementsByTagName('id')[0]
+                if(idEl == null){
+                    continue
+                }
+                let id = idEl.textContent
                 id = id.substring(id.lastIndexOf('/')+1)
 
                 if(id === version){
-                    settingsAboutChangelogTitle.innerHTML = entry.find('title').text()
-                    settingsAboutChangelogText.innerHTML = entry.find('content').text()
-                    settingsAboutChangelogButton.href = entry.find('link').attr('href')
+                    const titleEl = entry.getElementsByTagName('title')[0]
+                    const contentEl = entry.getElementsByTagName('content')[0]
+                    const linkEl = entry.getElementsByTagName('link')[0]
+                    settingsAboutChangelogTitle.innerHTML = titleEl != null ? titleEl.textContent : ''
+                    settingsAboutChangelogText.innerHTML = contentEl != null ? contentEl.textContent : ''
+                    settingsAboutChangelogButton.href = linkEl != null ? linkEl.getAttribute('href') : ''
                 }
             }
-
-        },
-        timeout: 2500
-    }).catch(err => {
-        settingsAboutChangelogText.innerHTML = Lang.queryJS('settings.about.releaseNotesFailed')
-    })
+        })
+        .catch(() => {
+            settingsAboutChangelogText.innerHTML = Lang.queryJS('settings.about.releaseNotesFailed')
+        })
+        .finally(() => {
+            clearTimeout(timeout)
+        })
 }
 
 /**

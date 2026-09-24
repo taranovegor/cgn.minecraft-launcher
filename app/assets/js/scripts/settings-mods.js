@@ -280,9 +280,9 @@ function saveAllModConfigurations(){
  * server is changed.
  */
 function animateSettingsTabRefresh(){
-    $(`#${selectedSettingsTab}`).fadeOut(500, async () => {
+    dom.fadeOut(`#${selectedSettingsTab}`, 500, async () => {
         await prepareSettings()
-        $(`#${selectedSettingsTab}`).fadeIn(500)
+        dom.fadeIn(`#${selectedSettingsTab}`, 500)
     })
 }
 

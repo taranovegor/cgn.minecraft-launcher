@@ -282,8 +282,8 @@ function settingsNavItemListener(ele, fade = true){
     document.getElementById(selectedSettingsTab).onscroll = settingsTabScrollListener
 
     if(fade){
-        $(`#${prevTab}`).fadeOut(250, () => {
-            $(`#${selectedSettingsTab}`).fadeIn({
+        dom.fadeOut(`#${prevTab}`, 250, () => {
+            dom.fadeIn(`#${selectedSettingsTab}`, {
                 duration: 250,
                 start: () => {
                     settingsTabScrollListener({
@@ -293,8 +293,8 @@ function settingsNavItemListener(ele, fade = true){
             })
         })
     } else {
-        $(`#${prevTab}`).hide(0, () => {
-            $(`#${selectedSettingsTab}`).show({
+        dom.hide(`#${prevTab}`, 0, () => {
+            dom.show(`#${selectedSettingsTab}`, {
                 duration: 0,
                 start: () => {
                     settingsTabScrollListener({
