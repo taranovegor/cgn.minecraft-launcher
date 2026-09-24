@@ -1,6 +1,6 @@
 appId: 'cgn.mcl'
-productName: 'cgn-launcher-setup'
-artifactName: '${productName} ${version}.${ext}'
+productName: 'CraftGame Launcher'
+artifactName: 'CraftGameLauncher-Setup-${version}.${ext}'
 executableName: 'cgnml'
 
 copyright: 'Copyright © 2025 CraftGame.net'
@@ -26,6 +26,7 @@ nsis:
     perMachine: false
     allowElevation: true
     allowToChangeInstallationDirectory: true
+    include: 'build/installer.nsh'
 
 ## macOS Configuration
 mac:
@@ -33,7 +34,7 @@ mac:
         - target: 'dmg'
           arch:
               - 'arm64'
-    artifactName: '${productName}-setup-${version}-${arch}.${ext}'
+    artifactName: '${productName}-${version}-${arch}.${ext}'
     category: 'public.app-category.games'
 
 # Linux Configuration

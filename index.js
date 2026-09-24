@@ -7,12 +7,30 @@ const autoUpdater                       = require('electron-updater').autoUpdate
 const ejse                              = require('ejs-electron')
 const isDev                             = require('./app/assets/js/isdev')
 const path                              = require('path')
+const fs                                = require('fs-extra')
 const semver                            = require('semver')
 const { pathToFileURL }                 = require('url')
 const { SHELL_OPCODE, CGN_OPCODE } = require('./app/assets/js/ipcconstants')
 const LangLoader                        = require('./app/assets/js/langloader')
 const { BACKGROUND }                    = require('./app/assets/js/endpoints')
 const deeplink = require('electron-app-universal-protocol-client').default
+
+// The app was previously named "Minecraft" (package.json productName), so the
+// user data directory (config.json, accounts) lives in %APPDATA%\Minecraft.
+// Rename it to the new location once so existing users keep their data.
+const LEGACY_APP_NAME = 'Minecraft'
+const APP_NAME = 'CraftGame Launcher'
+app.setName(APP_NAME)
+try {
+    const appDataDir = app.getPath('appData')
+    const legacyUserData = path.join(appDataDir, LEGACY_APP_NAME)
+    const newUserData = path.join(appDataDir, APP_NAME)
+    if (fs.existsSync(legacyUserData) && !fs.existsSync(newUserData)) {
+        fs.moveSync(legacyUserData, newUserData)
+    }
+} catch (err) {
+    console.error('Failed to migrate the legacy user data directory.', err)
+}
 
 if (!app.requestSingleInstanceLock()) {
     return app.quit()
