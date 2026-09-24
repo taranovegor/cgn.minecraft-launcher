@@ -126,7 +126,7 @@ function createWindow() {
     win = new BrowserWindow({
         width: 540,
         height: 720,
-        icon: getPlatformIcon('SealCircle'),
+        icon: getPlatformIcon('AppIcon'),
         frame: false,
         webPreferences: {
             preload: path.join(__dirname, 'app', 'assets', 'js', 'preloader.js'),
